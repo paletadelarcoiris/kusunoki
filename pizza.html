@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Pizza Maker</title>
+    <!-- QRCodeライブラリ -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #fcf8f2;
+            margin: 0;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        /* ヘッダー */
+        .top-header {
+            display: flex;
+            width: 100%;
+            max-width: 1280px;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            background: #fff;
+            padding: 10px 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            box-sizing: border-box;
+        }
+
+        .header-title-section {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        h1 {
+            color: #d32f2f;
+            margin: 0;
+            font-size: 28px;
+        }
+
+        .name-area {
+            background: #fdfbf7;
+            padding: 6px 15px;
+            border-radius: 8px;
+            border: 1px solid #ffe0b2;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: bold;
+        }
+
+        .name-area input {
+            font-size: 16px;
+            padding: 6px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: 160px;
+        }
+
+        /* 右上QRコード */
+        .qr-header-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #fff0f0;
+            border: 2px solid #ffcdd2;
+            padding: 8px 15px;
+            border-radius: 10px;
+        }
+
+        .qr-text-info {
+            text-align: right;
+        }
+
+        .qr-label {
+            font-size: 13px;
+            font-weight: bold;
+            color: #d32f2f;
+        }
+
+        .qr-subtext {
+            font-size: 10px;
+            color: #777;
+            margin-top: 2px;
+        }
+
+        #qrcode {
+            width: 80px;
+            height: 80px;
+            min-width: 80px;
+            min-height: 80px;
+            background: white;
+            padding: 3px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        #qrcode img, #qrcode canvas {
+            width: 80px !important;
+            height: 80px !important;
+            display: block;
+        }
+
+        /* メイン配置 */
+        .game-container {
+            display: flex;
+            flex-direction: row-reverse;
+            width: 100%;
+            max-width: 1280px;
+            gap: 15px;
+            align-items: flex-start;
+            justify-content: center;
+        }
+
+        .topping-box {
+            width: 170px;
+            background: #fff;
+            border: 2px dashed #ccc;
+            border-radius: 12px;
+            padding: 10px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            align-content: start;
+            height: 620px;
+            box-sizing: border-box;
+            overflow-y: auto;
+        }
+
+        .topping-item {
+            background: #fff9e6;
+            border: 1px solid #ffe0b2;
+            border-radius: 8px;
+            padding: 6px 2px;
+            text-align: center;
+            cursor: pointer;
+            -webkit-user-drag: none;
+        }
+
+        .topping-item img {
+            width: 55px;
+            height: 55px;
+            object-fit: contain;
+            pointer-events: none;
+        }
+
+        .topping-name {
+            font-size: 11px;
+            color: #5d4037;
+            font-weight: bold;
+            margin-top: 2px;
+        }
+
+        .action-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            justify-content: center;
+            align-items: center;
+            background: #fff;
+            padding: 10px 6px;
+            border-radius: 12px;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            height: 620px;
+            box-sizing: border-box;
+        }
+
+        .btn-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1px;
+            width: 65px;
+        }
+
+        .btn-label {
+            font-size: 11px;
+            color: #666;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 2px;
+        }
+
+        .icon-btn {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.1s;
+        }
+
+        .icon-btn:active {
+            transform: scale(0.9);
+        }
+
+        .btn-bigger, .btn-smaller, .btn-rotate { background-color: #79c9ff; }
+        .btn-delete { background-color: #ffb37b; }
+        .btn-sidebar-reset { background-color: #ff9494; }
+        .btn-sidebar-save { background-color: #8ce18c; }
+
+        .pizza-canvas {
+            width: 550px;
+            height: 620px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            padding-top: 20px;
+            box-sizing: border-box;
+            touch-action: none;
+        }
+
+        .pizza-title-display {
+            font-size: 26px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+            height: 40px;
+            line-height: 40px;
+            text-align: center;
+            width: 100%;
+        }
+
+        /* ピザ生地 crust.png */
+        .pizza-crust {
+            width: 460px;
+            height: 460px;
+            background-image: url('crust.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            position: relative;
+            pointer-events: none;
+        }
+
+        .placed-topping {
+            position: absolute;
+            width: 70px;
+            height: 70px;
+            object-fit: contain;
+            cursor: move;
+            transform: translate(-50%, -50%);
+            z-index: 5;
+            pointer-events: auto;
+            -webkit-user-drag: none;
+            box-sizing: border-box;
+            touch-action: none;
+        }
+
+        .placed-topping.selected {
+            border: 2px dashed #79c9ff;
+            border-radius: 4px;
+        }
+
+        /* 会話ボックス */
+        .dialogue-box {
+            flex: 1;
+            height: 620px;
+            border-radius: 12px;
+            padding: 15px;
+            box-sizing: border-box;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            background: #fff;
+            border: 2px dashed #d7ccc8;
+        }
+
+        .dialogue-box h3 {
+            margin: 0;
+            font-size: 16px;
+            color: #5d4037;
+            text-align: center;
+        }
+
+        .dialogue-editor {
+            width: 100%;
+            flex: 1;
+            border: 1px solid #e0e0e0;
+            background: #fafafa;
+            overflow-y: auto;
+            font-size: 22px;
+            font-weight: bold;
+            line-height: 1.6;
+            color: #333333;
+            padding: 12px;
+            box-sizing: border-box;
+            border-radius: 6px;
+            text-align: left;
+            touch-action: auto !important;
+            user-select: text !important;
+            -webkit-user-select: text !important;
+        }
+
+        .dialogue-editor:focus {
+            background: #fff;
+            outline: 2px solid #79c9ff;
+        }
+
+        .box-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            background: #fdfbf7;
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid #efebe9;
+        }
+
+        .color-palette, .size-palette {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .box-controls span {
+            font-size: 11px;
+            font-weight: bold;
+            color: #777;
+            width: 45px;
+        }
+
+        .color-dot {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            border: 2px solid white;
+            cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+        }
+
+        .size-btn {
+            font-size: 11px;
+            font-weight: bold;
+            color: #555;
+            padding: 3px 6px;
+            border: 1px solid #ccc;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-header">
+        <div class="header-title-section">
+            <h1>🍕 Pizza Maker 🍕</h1>
+            <div class="name-area">
+                <input type="text" id="nameInput" placeholder="なまえ" oninput="updateTitle()">
+                <span> さんのピザ</span>
+            </div>
+        </div>
+
+        <div class="qr-header-card">
+            <div class="qr-text-info">
+                <div class="qr-label">📱 Scan QR Code</div>
+                <div class="qr-subtext">会話文をシェア</div>
+            </div>
+            <div id="qrcode"></div>
+        </div>
+    </div>
+
+    <div class="game-container">
+        <!-- トッピング一覧 -->
+        <div class="topping-box" id="toppingBox"></div>
+
+        <!-- サイドバー -->
+        <div class="action-sidebar">
+            <div class="btn-container"><button class="icon-btn btn-bigger" onclick="changeSelectedSize(0.2)">➕</button><div class="btn-label">Bigger</div></div>
+            <div class="btn-container"><button class="icon-btn btn-smaller" onclick="changeSelectedSize(-0.2)">➖</button><div class="btn-label">Smaller</div></div>
+            <div class="btn-container"><button class="icon-btn btn-rotate" onclick="rotateSelected(45)">🔄</button><div class="btn-label">Rotate</div></div>
+            <div class="btn-container"><button class="icon-btn btn-delete" onclick="deleteSelected()">🗑️</button><div class="btn-label">Delete</div></div>
+            <div style="width:80%;height:1px;background:#e0e0e0;margin:4px 0;"></div>
+            <div class="btn-container"><button class="icon-btn btn-sidebar-reset" onclick="resetPizza()">✨</button><div class="btn-label">Clear</div></div>
+            <div class="btn-container"><button class="icon-btn btn-sidebar-save" onclick="savePizza()">💾</button><div class="btn-label">Save</div></div>
+        </div>
+
+        <!-- キャンバス -->
+        <div class="pizza-wrapper">
+            <div class="pizza-canvas" id="pizzaCanvas">
+                <div class="pizza-title-display" id="titleDisplay">＿＿＿ さんのピザ</div>
+                <div class="pizza-crust" id="pizzaCrust"></div>
+            </div>
+        </div>
+
+        <!-- 会話ボックス -->
+        <div class="dialogue-box" id="dialogueBox">
+            <h3>💬 Conversation Box</h3>
+            <div class="dialogue-editor" id="dialogueText" contenteditable="true" oninput="generateQR()"></div>
+            <div class="box-controls">
+                <div class="color-palette">
+                    <span>Color:</span>
+                    <div class="color-dot" style="background:#333333;" onclick="formatDoc('foreColor','#333333')" title="黒"></div>
+                    <div class="color-dot" style="background:#888888;" onclick="formatDoc('foreColor','#888888')" title="グレー"></div>
+                    <div class="color-dot" style="background:#e53935;" onclick="formatDoc('foreColor','#e53935')" title="赤系"></div>
+                    <div class="color-dot" style="background:#1e88e5;" onclick="formatDoc('foreColor','#1e88e5')" title="青系"></div>
+                    <div class="color-dot" style="background:#43a047;" onclick="formatDoc('foreColor','#43a047')" title="緑系"></div>
+                </div>
+                <div class="size-palette">
+                    <span>Size:</span>
+                    <button class="size-btn" onclick="formatDoc('fontSize','3')">小 (S)</button>
+                    <button class="size-btn" onclick="formatDoc('fontSize','5')">中 (M)</button>
+                    <button class="size-btn" onclick="formatDoc('fontSize','6')">大 (L)</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ご提示いただいた正確なファイル名一覧
+        const toppingsList = [
+            { name: 'Onion', src: 'onion.png' },
+            { name: 'Corn', src: 'corn.png' },
+            { name: 'Sausage', src: 'sausage.png' },
+            { name: 'Pepper', src: 'pepper.png' },
+            { name: 'Egg', src: 'egg.png' },
+            { name: 'Shrimp', src: 'shrimp.png' },
+            { name: 'Bacon', src: 'bacon.png' },
+            { name: 'Cheese', src: 'cheese.png' },
+            { name: 'Chicken', src: 'chicken.png' },
+            { name: 'Mushroom', src: 'masuroom.png' } // ご指定通りの masuroom.png
+        ];
+
+        let selectedTopping = null;
+        let qrObj = null;
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const toppingBox = document.getElementById('toppingBox');
+            if (toppingBox) {
+                toppingBox.innerHTML = '';
+                toppingsList.forEach(t => {
+                    const item = document.createElement('div');
+                    item.className = 'topping-item';
+                    item.innerHTML = `<img src="${t.src}" alt="${t.name}"><div class="topping-name">${t.name}</div>`;
+                    
+                    item.addEventListener('mousedown', (e) => initCreate(e, t.src, false));
+                    item.addEventListener('touchstart', (e) => initCreate(e, t.src, true), { passive: false });
+                    toppingBox.appendChild(item);
+                });
+            }
+
+            const editor = document.getElementById('dialogueText');
+            if (editor) {
+                editor.innerHTML = '<div><font color="#888888" size="5">A: What do you like?</font></div>' +
+                                   '<div><font color="#1e88e5" size="5">B: I like sausage and onion.</font></div>' +
+                                   '<div><br></div>' +
+                                   '<div><font color="#888888" size="5">A: How many?</font></div>' +
+                                   '<div><font color="#43a047" size="5">B: Three, please.</font></div>';
+            }
+
+            checkIncomingQRData();
+            setTimeout(initQR, 200);
+        });
+
+        function initQR() {
+            const qrContainer = document.getElementById('qrcode');
+            if (!qrContainer) return;
+            qrContainer.innerHTML = '';
+            
+            const editor = document.getElementById('dialogueText');
+            const textContent = editor ? (editor.innerText || editor.textContent) : '';
+            const shareUrl = generateShareURL(textContent);
+
+            if (window.QRCode) {
+                try {
+                    qrObj = new QRCode(qrContainer, {
+                        text: shareUrl,
+                        width: 80,
+                        height: 80,
+                        correctLevel: QRCode.CorrectLevel.L
+                    });
+                    return;
+                } catch (e) {}
+            }
+            renderFallbackQR(qrContainer, shareUrl);
+        }
+
+        function generateQR() {
+            const editor = document.getElementById('dialogueText');
+            const textContent = editor ? (editor.innerText || editor.textContent) : '';
+            const shareUrl = generateShareURL(textContent);
+            
+            if (qrObj && typeof qrObj.makeCode === 'function') {
+                try {
+                    qrObj.clear();
+                    qrObj.makeCode(shareUrl);
+                } catch(e) {
+                    initQR();
+                }
+            } else {
+                initQR();
+            }
+        }
+
+        function renderFallbackQR(container, text) {
+            container.innerHTML = '';
+            const img = document.createElement('img');
+            img.src = `https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=${encodeURIComponent(text)}`;
+            img.style.width = '80px';
+            img.style.height = '80px';
+            container.appendChild(img);
+        }
+
+        function generateShareURL(plainText) {
+            const baseUrl = window.location.href.split('?')[0];
+            const encodedData = encodeURIComponent(plainText);
+            return `${baseUrl}?text=${encodedData}`;
+        }
+
+        function checkIncomingQRData() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const textData = urlParams.get('text');
+            if (textData) {
+                const editor = document.getElementById('dialogueText');
+                if (editor) editor.innerText = decodeURIComponent(textData);
+                window.history.replaceState({}, document.title, window.location.href.split('?')[0]);
+            }
+        }
+
+        function updateTitle() {
+            const name = document.getElementById('nameInput').value;
+            document.getElementById('titleDisplay').textContent = name ? `${name} さんのピザ` : '＿＿＿ さんのピザ';
+        }
+
+        function formatDoc(cmd, value) {
+            document.execCommand(cmd, false, value);
+            const editor = document.getElementById('dialogueText');
+            if (editor) editor.focus();
+            generateQR();
+        }
+
+        function selectTopping(el) {
+            if (selectedTopping) selectedTopping.classList.remove('selected');
+            selectedTopping = el;
+            if (selectedTopping) selectedTopping.classList.add('selected');
+        }
+
+        const canvasEl = document.getElementById('pizzaCanvas');
+        if (canvasEl) {
+            canvasEl.addEventListener('pointerdown', function(e) {
+                if (!e.target.classList.contains('placed-topping')) selectTopping(null);
+            });
+        }
+
+        function initCreate(e, imgSrc, isTouch) {
+            e.preventDefault(); 
+            const canvas = document.getElementById('pizzaCanvas');
+            const rect = canvas.getBoundingClientRect();
+            
+            const clientX = isTouch ? e.touches[0].clientX : e.clientX;
+            const clientY = isTouch ? e.touches[0].clientY : e.clientY;
+            
+            const img = document.createElement('img');
+            img.src = imgSrc; 
+            img.className = 'placed-topping';
+            img.dataset.scale = "1.5"; 
+            img.dataset.rotate = "0";
+            img.style.left = (clientX - rect.left) + 'px'; 
+            img.style.top = (clientY - rect.top) + 'px';
+
+            canvas.appendChild(img);
+            selectTopping(img);
+            applyTransform(img);
+            
+            startDragLogic(e, img, isTouch);
+        }
+
+        function applyTransform(img) {
+            img.style.transform = `translate(-50%, -50%) scale(${img.dataset.scale}) rotate(${img.dataset.rotate}deg)`;
+        }
+
+        function startDragLogic(e, element, isTouch) {
+            selectTopping(element);
+            const canvas = document.getElementById('pizzaCanvas');
+            
+            const moveHandler = (evt) => {
+                evt.preventDefault(); 
+                const rect = canvas.getBoundingClientRect();
+                const clientX = isTouch ? evt.touches[0].clientX : evt.clientX;
+                const clientY = isTouch ? evt.touches[0].clientY : evt.clientY;
+                element.style.left = (clientX - rect.left) + 'px';
+                element.style.top = (clientY - rect.top) + 'px';
+            };
+            
+            const stopHandler = () => {
+                if (isTouch) {
+                    window.removeEventListener('touchmove', moveHandler);
+                    window.removeEventListener('touchend', stopHandler);
+                } else {
+                    window.removeEventListener('mousemove', moveHandler);
+                    window.removeEventListener('mouseup', stopHandler);
+                }
+                
+                const finalRect = element.getBoundingClientRect();
+                const canvasRect = canvas.getBoundingClientRect();
+                if (finalRect.left < canvasRect.left || finalRect.right > canvasRect.right ||
+                    finalRect.top < canvasRect.top || finalRect.bottom > canvasRect.bottom) {
+                    if (selectedTopping === element) selectTopping(null);
+                    element.remove();
+                }
+            };
+
+            if (isTouch) {
+                window.addEventListener('touchmove', moveHandler, { passive: false });
+                window.addEventListener('touchend', stopHandler);
+            } else {
+                window.addEventListener('mousemove', moveHandler);
+                window.addEventListener('mouseup', stopHandler);
+            }
+        }
+
+        if (canvasEl) {
+            canvasEl.addEventListener('mousedown', (e) => {
+                if (e.target.classList.contains('placed-topping')) {
+                    e.preventDefault();
+                    startDragLogic(e, e.target, false);
+                }
+            });
+            canvasEl.addEventListener('touchstart', (e) => {
+                if (e.target.classList.contains('placed-topping')) {
+                    e.preventDefault();
+                    startDragLogic(e, e.target, true);
+                }
+            }, { passive: false });
+        }
+
+        function changeSelectedSize(amount) {
+            if (!selectedTopping) return;
+            let currentScale = parseFloat(selectedTopping.dataset.scale) + amount;
+            if (currentScale < 0.4) currentScale = 0.4;
+            if (currentScale > 2.4) currentScale = 2.4;
+            selectedTopping.dataset.scale = currentScale.toFixed(1);
+            applyTransform(selectedTopping);
+        }
+
+        function rotateSelected(degree) {
+            if (!selectedTopping) return;
+            let currentRotate = (parseInt(selectedTopping.dataset.rotate) + degree) % 360;
+            selectedTopping.dataset.rotate = currentRotate;
+            applyTransform(selectedTopping);
+        }
+
+        function deleteSelected() {
+            if (!selectedTopping) return;
+            selectedTopping.remove();
+            selectedTopping = null;
+        }
+
+        function resetPizza() {
+            document.getElementById('nameInput').value = '';
+            document.getElementById('titleDisplay').textContent = '＿＿＿ さんのピザ';
+            selectTopping(null);
+            document.querySelectorAll('.placed-topping').forEach(topping => topping.remove());
+        }
+
+        function savePizza() {
+            if (selectedTopping) selectedTopping.classList.remove('selected');
+            const name = document.getElementById('nameInput').value || 'pizza';
+            const canvas = document.createElement('canvas');
+            canvas.width = 550; canvas.height = 620; 
+            const ctx = canvas.getContext('2d');
+
+            ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#333333'; ctx.font = 'bold 26px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillText(document.getElementById('titleDisplay').textContent, canvas.width / 2, 40);
+
+            const crustImg = new Image();
+            crustImg.src = 'crust.png';
+            crustImg.onload = function() {
+                ctx.drawImage(crustImg, 45, 110, 460, 460);
+                const toppings = document.querySelectorAll('.placed-topping');
+                let loadedCount = 0;
+
+                if (toppings.length === 0) { 
+                    triggerDownload(canvas, name); 
+                    if (selectedTopping) selectedTopping.classList.add('selected');
+                    return; 
+                }
+
+                toppings.forEach(topping => {
+                    const img = new Image();
+                    img.src = topping.src;
+                    const x = parseFloat(topping.style.left);
+                    const y = parseFloat(topping.style.top);
+                    const scale = parseFloat(topping.dataset.scale || 1.5);
+                    const rotate = parseInt(topping.dataset.rotate || 0);
+
+                    img.onload = function() {
+                        ctx.save();
+                        ctx.translate(x, y);
+                        ctx.rotate((rotate * Math.PI) / 180);
+                        const size = 70 * scale;
+                        ctx.drawImage(img, -size / 2, -size / 2, size, size);
+                        ctx.restore();
+                        
+                        loadedCount++; 
+                        if (loadedCount === toppings.length) { 
+                            triggerDownload(canvas, name);
+                            if (selectedTopping) selectedTopping.classList.add('selected');
+                        }
+                    };
+                });
+            };
+        }
+
+        function triggerDownload(canvas, filename) {
+            try {
+                const link = document.createElement('a'); 
+                link.download = `${filename}_pizza.png`;
+                link.href = canvas.toDataURL('image/png'); 
+                document.body.appendChild(link);
+                link.click(); 
+                document.body.removeChild(link);
+            } catch (e) {
+                alert("保存に失敗しました。");
+            }
+        }
+    </script>
+</body>
+</html>
