@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Pizza Maker</title>
+    <!-- QRコード生成用ライブラリ -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #fcf8f2;
+            margin: 0;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            user-select: none;
+            -webkit-user-select: none;
+            box-sizing: border-box;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .top-header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            max-width: 1280px;
+            margin-bottom: 8px;
+            background: #fff;
+            padding: 8px 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+            box-sizing: border-box;
+            flex-shrink: 0;
+        }
+
+        h1 {
+            color: #d32f2f;
+            margin: 0;
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+
+        .game-container {
+            display: flex;
+            flex-direction: row-reverse;
+            width: 100%;
+            max-width: 1280px;
+            gap: 12px;
+            align-items: stretch;
+            justify-content: center;
+            flex: 1;
+            min-height: 0;
+            margin-bottom: 5px;
+        }
+
+        /* トッピング一覧ボックス */
+        .topping-box {
+            width: 170px;
+            background: #fff;
+            border: 2px dashed #ccc;
+            border-radius: 12px;
+            padding: 8px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            align-content: start;
+            box-sizing: border-box;
+            overflow-y: auto;
+        }
+
+        .topping-item {
+            background: #fff9e6;
+            border: 1px solid #ffe0b2;
+            border-radius: 8px;
+            padding: 4px 2px;
+            text-align: center;
+            cursor: pointer;
+            -webkit-user-drag: none;
+            user-select: none;
+        }
+
+        .topping-item img {
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+            pointer-events: none;
+            -webkit-user-drag: none;
+        }
+
+        .topping-name {
+            font-size: 10px;
+            color: #5d4037;
+            font-weight: bold;
+            margin-top: 1px;
+        }
+
+        /* サイドバー */
+        .action-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            justify-content: center;
+            align-items: center;
+            background: #fff;
+            padding: 8px 6px;
+            border-radius: 12px;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            box-sizing: border-box;
+            flex-shrink: 0;
+        }
+
+        .btn-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1px;
+            width: 60px;
+        }
+
+        .btn-label {
+            font-size: 10px;
+            color: #666;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .icon-btn {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.1s;
+        }
+
+        .icon-btn:active {
+            transform: scale(0.9);
+        }
+
+        .btn-bigger, .btn-smaller, .btn-rotate { background-color: #79c9ff; }
+        .btn-delete { background-color: #ffb37b; }
+        .btn-sidebar-reset { background-color: #ff9494; }
+        .btn-sidebar-save { background-color: #8ce18c; }
+
+        /* ピザキャンバス */
+        .pizza-canvas {
+            width: 520px;
+            background-color: #ffffff;
+            background-image: 
+                repeating-linear-gradient(45deg, rgba(211, 47, 47, 0.22) 0px, rgba(211, 47, 47, 0.22) 30px, transparent 30px, transparent 120px),
+                repeating-linear-gradient(-45deg, rgba(46, 125, 50, 0.22) 0px, rgba(46, 125, 50, 0.22) 30px, transparent 30px, transparent 120px);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            padding-top: 10px;
+            box-sizing: border-box;
+            touch-action: none;
+        }
+
+        .pizza-title-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            margin-bottom: 5px;
+            width: 100%;
+            z-index: 2;
+        }
+
+        .pizza-title-input {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+            border: 2px dashed #ffb37b;
+            background: #fffdfa;
+            border-radius: 8px;
+            padding: 4px 12px;
+            width: 280px;
+            text-align: center;
+            outline: none;
+        }
+
+        .pizza-title-input:focus {
+            border-color: #1e88e5;
+            background: #fff;
+        }
+
+        .pizza-crust {
+            width: 500px;
+            height: 500px;
+            position: relative;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            margin-top: 50px;
+        }
+
+        .placed-topping {
+            position: absolute;
+            width: 70px;
+            height: 70px;
+            object-fit: contain;
+            cursor: move;
+            transform: translate(-50%, -50%);
+            z-index: 5;
+            pointer-events: auto;
+            -webkit-user-drag: none;
+            box-sizing: border-box;
+            touch-action: none;
+        }
+
+        .placed-topping.selected {
+            border: 2px dashed #79c9ff;
+            border-radius: 4px;
+        }
+
+        /* 会話ボックス */
+        .dialogue-box {
+            flex: 1;
+            border-radius: 12px;
+            padding: 10px 12px;
+            box-sizing: border-box;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            background: #fff;
+            border: 2px dashed #d7ccc8;
+            min-width: 320px;
+        }
+
+        .dialogue-box h3 {
+            margin: 0;
+            font-size: 14px;
+            color: #5d4037;
+            text-align: center;
+        }
+
+        .dialogue-editor {
+            width: 100%;
+            flex: 1;
+            border: 1px solid #e0e0e0;
+            background: #fafafa;
+            overflow-y: auto;
+            font-size: 20px;
+            font-weight: bold;
+            line-height: 1.25;
+            color: #333333;
+            padding: 10px;
+            box-sizing: border-box;
+            border-radius: 6px;
+            text-align: left;
+            touch-action: auto !important;
+            user-select: text !important;
+            -webkit-user-select: text !important;
+        }
+
+        .dialogue-editor:focus {
+            background: #fff;
+            outline: 2px solid #79c9ff;
+        }
+
+        .box-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            background: #fdfbf7;
+            padding: 6px 8px;
+            border-radius: 6px;
+            border: 1px solid #efebe9;
+            flex-shrink: 0;
+        }
+
+        .controls-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .color-palette, .size-palette {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+
+        .box-controls span {
+            font-size: 10px;
+            font-weight: bold;
+            color: #777;
+            width: 40px;
+        }
+
+        .color-dot {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid white;
+            cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+        }
+
+        .size-btn {
+            font-size: 10px;
+            font-weight: bold;
+            color: #555;
+            padding: 2px 5px;
+            border: 1px solid #ccc;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .copy-link-btn {
+            font-size: 11px;
+            font-weight: bold;
+            color: white;
+            background-color: #1e88e5;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .copy-link-btn:active {
+            background-color: #1565c0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-header">
+        <h1>🍕 Pizza Maker 🍕</h1>
+    </div>
+
+    <div class="game-container">
+        <!-- トッピング一覧 -->
+        <div class="topping-box" id="toppingBox">
+            <div class="topping-item" onmousedown="initCreateFromHTML(event, './onion.png', false)" ontouchstart="initCreateFromHTML(event, './onion.png', true)">
+                <img src="./onion.png" alt="Onion" draggable="false"><div class="topping-name">Onion</div>
+            </div>
+            <div class="topping-item" onmousedown="initCreateFromHTML(event, './corn.png', false)" ontouchstart="initCreateFromHTML(event, './corn.png', true)">
+                <img src="./corn.png" alt="Corn" draggable="false"><div class="topping-name">Corn</div>
+            </div>
+            <div class="topping-item" onmousedown="initCreateFromHTML(event, './sausage.png', false)" ontouchstart="initCreateFromHTML(event, './sausage.png', true)">
+                <img src="./sausage.png" alt="Sausage" draggable="false"><div class="topping-name">Sausage</div>
+            </div>
+            <div class="topping-item" onmousedown="initCreateFromHTML(event, './pepper.png', false)" ontouchstart="initCreateFromHTML(event, './pepper.png', true)">
+                <img src="./pepper.png" alt="Pepper" draggable="false"><div class="topping-name">Pepper</div>
+            </div>
+            <div class="topping-item" onmousedown="initCreateFromHTML(event, './egg.png', false)" ontouchstart="initCreateFromHTML(event, './egg.png', true)">
+                <img src="./egg.png" alt="Egg" draggable="false"><div class="topping-name">Egg</div>
+            </div>
+            <div class="topping-item" onmousedown="initCreateFromHTML(event, './shrimp.png', false)" ontouchstart="initCreateFromHTML(event, './shrimp.png', true)">
+                <img src="./shrimp.png" alt="Shrimp" draggable="false"><div class="topping-name">Shrimp</div>
+            </div>
+            <div class="topping-item" onmousedown="initCreateFromHTML(event, './bacon.png', false)" ontouchstart="initCreateFromHTML(event, './bacon.png', true)">
+                <img src="./bacon.png" alt="Bacon" draggable="false"><div class="topping-name">Bacon</div>
+            </div>
+            <div class="topping-item" onmousedown="initCreateFromHTML(event, './cheese.png', false)" ontouchstart="initCreateFromHTML(event, './cheese.png', true)">
+                <img src="./cheese.png" alt="Cheese" draggable="false"><div class="topping-name">Cheese</div>
+            </div>
+            <div class="topping-item" onmousedown="initCreateFromHTML(event, './chicken.png', false)" ontouchstart="initCreateFromHTML(event, './chicken.png', true)">
+                <img src="./chicken.png" alt="Chicken" draggable="false"><div class="topping-name">Chicken</div>
+            </div>
+            <div class="topping-item" onmousedown="initCreateFromHTML(event, './mushroom.png', false)" ontouchstart="initCreateFromHTML(event, './mushroom.png', true)">
+                <img src="./mushroom.png" alt="Mushroom" draggable="false"><div class="topping-name">Mushroom</div>
+            </div>
+        </div>
+
+        <!-- サイドバー -->
+        <div class="action-sidebar">
+            <div class="btn-container"><button class="icon-btn btn-bigger" onclick="changeSelectedSize(0.2)">➕</button><div class="btn-label">Bigger</div></div>
+            <div class="btn-container"><button class="icon-btn btn-smaller" onclick="changeSelectedSize(-0.2)">➖</button><div class="btn-label">Smaller</div></div>
+            <div class="btn-container"><button class="icon-btn btn-rotate" onclick="rotateSelected(45)">🔄</button><div class="btn-label">Rotate</div></div>
+            <div class="btn-container"><button class="icon-btn btn-delete" onclick="deleteSelected()">🗑️</button><div class="btn-label">Delete</div></div>
+            <div style="width:80%;height:1px;background:#e0e0e0;margin:2px 0;"></div>
+            <div class="btn-container"><button class="icon-btn btn-sidebar-reset" onclick="resetPizza()">✨</button><div class="btn-label">Clear</div></div>
+            <div class="btn-container"><button class="icon-btn btn-sidebar-save" onclick="savePizza()">💾</button><div class="btn-label">Save</div></div>
+        </div>
+
+        <!-- キャンバス -->
+        <div class="pizza-wrapper" style="display:flex; flex-direction:column;">
+            <div class="pizza-canvas" id="pizzaCanvas" style="flex:1;">
+                <div class="pizza-title-container">
+                    <input type="text" class="pizza-title-input" id="nameInput" placeholder="おなまえ（例：〇〇 さんのピザ）">
+                </div>
+                <div class="pizza-crust" id="pizzaCrust"></div>
+            </div>
+        </div>
+
+        <!-- 会話ボックス -->
+        <div class="dialogue-box" id="dialogueBox">
+            <h3>💬 Conversation Box</h3>
+            <div class="dialogue-editor" id="dialogueText" contenteditable="true" oninput="generateQR()"></div>
+            <div class="box-controls">
+                <div class="color-palette">
+                    <span>Color:</span>
+                    <div class="color-dot" style="background:#333333;" onclick="formatDoc('foreColor','#333333')" title="黒"></div>
+                    <div class="color-dot" style="background:#888888;" onclick="formatDoc('foreColor','#888888')" title="グレー"></div>
+                    <div class="color-dot" style="background:#e53935;" onclick="formatDoc('foreColor','#e53935')" title="赤系"></div>
+                    <div class="color-dot" style="background:#1e88e5;" onclick="formatDoc('foreColor','#1e88e5')" title="青系"></div>
+                    <div class="color-dot" style="background:#43a047;" onclick="formatDoc('foreColor','#43a047')" title="緑系"></div>
+                </div>
+                <div class="controls-row">
+                    <div class="size-palette">
+                        <span>Size:</span>
+                        <button class="size-btn" onclick="formatDoc('fontSize','3')">小 (S)</button>
+                        <button class="size-btn" onclick="formatDoc('fontSize','5')">中 (M)</button>
+                        <button class="size-btn" onclick="formatDoc('fontSize','6')">大 (L)</button>
+                    </div>
+                    <button class="copy-link-btn" onclick="copyShareLink()">リンクのコピー</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const assets = { crust: './crust.png' };
+        let selectedTopping = null;
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const crustEl = document.getElementById('pizzaCrust');
+            if (crustEl) crustEl.style.backgroundImage = `url('${assets.crust}')`;
+
+            const editor = document.getElementById('dialogueText');
+            if (editor) {
+                editor.innerHTML = 
+                    '<div><font color="#43a047" size="5">  AB: Hello</font><br><font color="#888888" size="3">  ハロー</font></div>' +
+                    '<div style="margin-top: 4px;"><font color="#e53935" size="5">  A: &nbsp; What do you like?</font><br><font color="#888888" size="3">  ホワッ(ト) ドゥー ユー ライク？</font></div>' +
+                    '<div style="margin-top: 4px;"><font color="#1e88e5" size="5">  B: I like _______ and _______.</font><br><font color="#888888" size="3">  アイ ライク＿＿＿＿＿アンド＿＿＿＿＿。</font></div>' +
+                    '<div style="margin-top: 4px;"><font color="#e53935" size="5">  A: How many?</font><br><font color="#888888" size="3">  ハウ メニー？</font></div>' +
+                    '<div style="margin-top: 4px;"><font color="#1e88e5" size="5">  B: 3 please.</font><br><font color="#888888" size="3">  スリー プリーズ</font></div>' +
+                    '<div style="margin-top: 4px;"><font color="#1e88e5" size="5">  &nbsp;Thank you.</font><br><font color="#888888" size="3">  サンキュー</font></div>' +
+                    '<div style="margin-top: 4px;"><font color="#43a047" size="5">  AB：Bye</font><br><font color="#888888" size="3">  バイ</font></div>';
+            }
+
+            checkIncomingQRData();
+        });
+
+        function initCreateFromHTML(e, imgSrc, isTouch) {
+            initCreate(e, imgSrc, isTouch);
+        }
+
+        function generateQR() {}
+
+        function copyShareLink() {
+            const editor = document.getElementById('dialogueText');
+            const textContent = editor ? (editor.innerText || editor.textContent) : '';
+            const baseUrl = window.location.href.split('?')[0];
+            const shareUrl = `${baseUrl}?text=${encodeURIComponent(textContent)}`;
+            
+            navigator.clipboard.writeText(shareUrl).then(() => {
+                alert("リンクのコピーをしました！");
+            }).catch(err => {
+                const textarea = document.createElement('textarea');
+                textarea.value = shareUrl;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                alert("リンクのコピーをしました！");
+            });
+        }
+
+        function checkIncomingQRData() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const textData = urlParams.get('text');
+            if (textData) {
+                const editor = document.getElementById('dialogueText');
+                if (editor) editor.innerText = decodeURIComponent(textData);
+                window.history.replaceState({}, document.title, window.location.href.split('?')[0]);
+            }
+        }
+
+        function formatDoc(cmd, value) {
+            document.execCommand(cmd, false, value);
+            const editor = document.getElementById('dialogueText');
+            if (editor) editor.focus();
+        }
+
+        function selectTopping(el) {
+            if (selectedTopping) selectedTopping.classList.remove('selected');
+            selectedTopping = el;
+            if (selectedTopping) selectedTopping.classList.add('selected');
+        }
+
+        const canvasEl = document.getElementById('pizzaCanvas');
+        if (canvasEl) {
+            canvasEl.addEventListener('pointerdown', function(e) {
+                if (!e.target.classList.contains('placed-topping')) selectTopping(null);
+            });
+        }
+
+        function initCreate(e, imgSrc, isTouch) {
+            e.preventDefault(); 
+            const canvas = document.getElementById('pizzaCanvas');
+            const rect = canvas.getBoundingClientRect();
+            
+            const clientX = isTouch ? e.touches[0].clientX : e.clientX;
+            const clientY = isTouch ? e.touches[0].clientY : e.clientY;
+            
+            const img = document.createElement('img');
+            img.src = imgSrc; 
+            img.className = 'placed-topping';
+            img.dataset.scale = "1.5"; 
+            img.dataset.rotate = "0";
+            img.style.left = (clientX - rect.left) + 'px'; 
+            img.style.top = (clientY - rect.top) + 'px';
+            img.setAttribute('draggable', 'false');
+
+            canvas.appendChild(img);
+            selectTopping(img);
+            applyTransform(img);
+            
+            startDragLogic(e, img, isTouch);
+        }
+
+        function applyTransform(img) {
+            img.style.transform = `translate(-50%, -50%) scale(${img.dataset.scale}) rotate(${img.dataset.rotate}deg)`;
+        }
+
+        function startDragLogic(e, element, isTouch) {
+            selectTopping(element);
+            const canvas = document.getElementById('pizzaCanvas');
+            
+            const moveHandler = (evt) => {
+                evt.preventDefault(); 
+                const rect = canvas.getBoundingClientRect();
+                const clientX = isTouch ? evt.touches[0].clientX : evt.clientX;
+                const clientY = isTouch ? evt.touches[0].clientY : evt.clientY;
+                element.style.left = (clientX - rect.left) + 'px';
+                element.style.top = (clientY - rect.top) + 'px';
+            };
+            
+            const stopHandler = () => {
+                if (isTouch) {
+                    window.removeEventListener('touchmove', moveHandler);
+                    window.removeEventListener('touchend', stopHandler);
+                } else {
+                    window.removeEventListener('mousemove', moveHandler);
+                    window.removeEventListener('mouseup', stopHandler);
+                }
+                
+                const finalRect = element.getBoundingClientRect();
+                const canvasRect = canvas.getBoundingClientRect();
+                if (finalRect.left < canvasRect.left || finalRect.right > canvasRect.right ||
+                    finalRect.top < canvasRect.top || finalRect.bottom > canvasRect.bottom) {
+                    if (selectedTopping === element) selectTopping(null);
+                    element.remove();
+                }
+            };
+
+            if (isTouch) {
+                window.addEventListener('touchmove', moveHandler, { passive: false });
+                window.addEventListener('touchend', stopHandler);
+            } else {
+                window.addEventListener('mousemove', moveHandler);
+                window.addEventListener('mouseup', stopHandler);
+            }
+        }
+
+        if (canvasEl) {
+            canvasEl.addEventListener('mousedown', (e) => {
+                if (e.target.classList.contains('placed-topping')) {
+                    e.preventDefault();
+                    startDragLogic(e, e.target, false);
+                }
+            });
+            canvasEl.addEventListener('touchstart', (e) => {
+                if (e.target.classList.contains('placed-topping')) {
+                    e.preventDefault();
+                    startDragLogic(e, e.target, true);
+                }
+            }, { passive: false });
+        }
+
+        function changeSelectedSize(amount) {
+            if (!selectedTopping) return;
+            let currentScale = parseFloat(selectedTopping.dataset.scale) + amount;
+            if (currentScale < 0.4) currentScale = 0.4;
+            if (currentScale > 2.4) currentScale = 2.4;
+            selectedTopping.dataset.scale = currentScale.toFixed(1);
+            applyTransform(selectedTopping);
+        }
+
+        function rotateSelected(degree) {
+            if (!selectedTopping) return;
+            let currentRotate = (parseInt(selectedTopping.dataset.rotate) + degree) % 360;
+            selectedTopping.dataset.rotate = currentRotate;
+            applyTransform(selectedTopping);
+        }
+
+        function deleteSelected() {
+            if (!selectedTopping) return;
+            selectedTopping.remove();
+            selectedTopping = null;
+        }
+
+        function resetPizza() {
+            document.getElementById('nameInput').value = '';
+            selectTopping(null);
+            document.querySelectorAll('.placed-topping').forEach(topping => topping.remove());
+        }
+
+        function savePizza() {
+            if (selectedTopping) selectedTopping.classList.remove('selected');
+            const nameInputVal = document.getElementById('nameInput').value.trim();
+            const fileName = nameInputVal || 'pizza';
+            const titleText = nameInputVal ? nameInputVal : '';
+
+            const canvas = document.createElement('canvas');
+            canvas.width = 550; canvas.height = 620; 
+            const ctx = canvas.getContext('2d');
+
+            // 1. 背景の白とチェック模様を描画
+            ctx.fillStyle = '#ffffff'; 
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // チェック（斜めストライプ）を描画する補助関数
+            ctx.fillStyle = 'rgba(211, 47, 47, 0.22)';
+            drawStripes(ctx, canvas.width, canvas.height, 45, 30, 120);
+            ctx.fillStyle = 'rgba(46, 125, 50, 0.22)';
+            drawStripes(ctx, canvas.width, canvas.height, -45, 30, 120);
+
+            // 2. お名前テキストを描画（重ならないように上部に配置）
+            if (titleText) {
+                ctx.fillStyle = '#333333'; 
+                ctx.font = 'bold 24px Arial'; 
+                ctx.textAlign = 'center'; 
+                ctx.textBaseline = 'top';
+                ctx.fillText(titleText, canvas.width / 2, 20);
+            }
+
+            // 3. ピザ生地（crust.png）を描画（文字と重ならないよう下に配置: y=70）
+            const crustImg = new Image();
+            crustImg.src = assets.crust;
+            
+            crustImg.onload = function() {
+                const crustX = (canvas.width - 500) / 2;
+                const crustY = 70; // 文字と被らない位置
+                ctx.drawImage(crustImg, crustX, crustY, 500, 500);
+                
+                const toppings = document.querySelectorAll('.placed-topping');
+                let loadedCount = 0;
+
+                if (toppings.length === 0) { 
+                    triggerDownload(canvas, fileName); 
+                    if (selectedTopping) selectedTopping.classList.add('selected');
+                    return; 
+                }
+
+                toppings.forEach(topping => {
+                    const img = new Image();
+                    img.src = topping.src;
+                    const x = parseFloat(topping.style.left);
+                    // 画面上の座標（上からの位置）を、保存用キャンバスのcrust位置（y=70）に合わせて調整
+                    const canvasBox = document.getElementById('pizzaCanvas').getBoundingClientRect();
+                    const crustDomEl = document.getElementById('pizzaCrust').getBoundingClientRect();
+                    
+                    // キャンバス内での相対座標を計算
+                    const relX = x;
+                    const relY = parseFloat(topping.style.top);
+                    
+                    const scale = parseFloat(topping.dataset.scale || 1.5);
+                    const rotate = parseInt(topping.dataset.rotate || 0);
+
+                    img.onload = function() {
+                        ctx.save();
+                        // 画面上の配置比率に合わせて保存用座標を計算
+                        const scaleRatio = 550 / canvasBox.width;
+                        ctx.translate(relX * scaleRatio, relY * scaleRatio);
+                        ctx.rotate((rotate * Math.PI) / 180);
+                        const size = 70 * scale * scaleRatio;
+                        ctx.drawImage(img, -size / 2, -size / 2, size, size);
+                        ctx.restore();
+                        
+                        loadedCount++; 
+                        if (loadedCount === toppings.length) { 
+                            triggerDownload(canvas, fileName);
+                            if (selectedTopping) selectedTopping.classList.add('selected');
+                        }
+                    };
+                    img.onerror = function() {
+                        loadedCount++;
+                        if (loadedCount === toppings.length) {
+                            triggerDownload(canvas, fileName);
+                        }
+                    };
+                });
+            };
+            crustImg.onerror = function() {
+                alert("crust.pngの読み込みに失敗しました。");
+            };
+        }
+
+        // 背景のチェック模様を描画するためのヘルパー関数
+        function drawStripes(ctx, width, height, angle, stripeWidth, gap) {
+            ctx.save();
+            ctx.beginPath();
+            ctx.rect(0, 0, width, height);
+            ctx.clip();
+
+            ctx.translate(width / 2, height / 2);
+            ctx.rotate((angle * Math.PI) / 180);
+            ctx.translate(-width, -height * 1.5);
+
+            const size = Math.max(width, height) * 3;
+            for (let i = -size; i < size; i += (stripeWidth + gap)) {
+                ctx.fillRect(i, 0, stripeWidth, size * 3);
+            }
+            ctx.restore();
+        }
+
+        function triggerDownload(canvas, filename) {
+            try {
+                const link = document.createElement('a'); 
+                link.download = `${filename}_pizza.png`;
+                link.href = canvas.toDataURL('image/png'); 
+                document.body.appendChild(link);
+                link.click(); 
+                document.body.removeChild(link);
+            } catch (e) {
+                alert("保存に失敗しました。");
+            }
+        }
+    </script>
+</body>
+</html>
