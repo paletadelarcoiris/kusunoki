@@ -55,8 +55,8 @@ window.addEventListener('DOMContentLoaded', () => {
 
     const editor = document.getElementById('dialogueText');
     if (editor) {
-        editor.innerHTML = '<div><font color="#888888" size="5">A: What do you like?</font></div>' +
-                           '<div><font color="#1e88e5" size="5">B: I like sausage and corn.</font></div>' +
+        editor.innerHTML = '<div><font color="#888888" size="5">A: Hello<BR>  What do you like?</font></div>' +
+                           '<div><font color="#1e88e5" size="5">B: I like _______ and _________.</font></div>' +
                            '<div><br></div>' +
                            '<div><font color="#888888" size="5">A: How many?</font></div>' +
                            '<div><font color="#43a047" size="5">B: Three, please.</font></div>';
