@@ -4,17 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Pizza Maker</title>
+    <!-- QRコード生成用ライブラリ -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
             background: #fcf8f2;
             margin: 0;
-            padding: 15px;
+            padding: 10px;
             display: flex;
             flex-direction: column;
             align-items: center;
             user-select: none;
             -webkit-user-select: none;
+            box-sizing: border-box;
+            height: 100vh;
+            overflow: hidden;
         }
 
         .top-header {
@@ -23,18 +28,19 @@
             align-items: center;
             width: 100%;
             max-width: 1280px;
-            margin-bottom: 15px;
+            margin-bottom: 8px;
             background: #fff;
-            padding: 12px 20px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            padding: 8px 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
             box-sizing: border-box;
+            flex-shrink: 0;
         }
 
         h1 {
             color: #d32f2f;
             margin: 0;
-            font-size: 38px;
+            font-size: 32px;
             font-weight: 800;
             letter-spacing: 1px;
         }
@@ -44,22 +50,25 @@
             flex-direction: row-reverse;
             width: 100%;
             max-width: 1280px;
-            gap: 15px;
-            align-items: flex-start;
+            gap: 12px;
+            align-items: stretch;
             justify-content: center;
+            flex: 1;
+            min-height: 0;
+            margin-bottom: 5px;
         }
 
+        /* トッピング一覧ボックス */
         .topping-box {
             width: 170px;
             background: #fff;
             border: 2px dashed #ccc;
             border-radius: 12px;
-            padding: 10px;
+            padding: 8px;
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
+            gap: 8px;
             align-content: start;
-            height: 620px;
             box-sizing: border-box;
             overflow-y: auto;
         }
@@ -68,7 +77,7 @@
             background: #fff9e6;
             border: 1px solid #ffe0b2;
             border-radius: 8px;
-            padding: 6px 2px;
+            padding: 4px 2px;
             text-align: center;
             cursor: pointer;
             -webkit-user-drag: none;
@@ -76,33 +85,34 @@
         }
 
         .topping-item img {
-            width: 55px;
-            height: 55px;
+            width: 50px;
+            height: 50px;
             object-fit: contain;
             pointer-events: none;
             -webkit-user-drag: none;
         }
 
         .topping-name {
-            font-size: 11px;
+            font-size: 10px;
             color: #5d4037;
             font-weight: bold;
-            margin-top: 2px;
+            margin-top: 1px;
         }
 
+        /* サイドバー */
         .action-sidebar {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 6px;
             justify-content: center;
             align-items: center;
             background: #fff;
-            padding: 10px 6px;
+            padding: 8px 6px;
             border-radius: 12px;
             border: 1px solid #e0e0e0;
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            height: 620px;
             box-sizing: border-box;
+            flex-shrink: 0;
         }
 
         .btn-container {
@@ -110,24 +120,23 @@
             flex-direction: column;
             align-items: center;
             gap: 1px;
-            width: 65px;
+            width: 60px;
         }
 
         .btn-label {
-            font-size: 11px;
+            font-size: 10px;
             color: #666;
             font-weight: bold;
             text-align: center;
-            margin-top: 2px;
         }
 
         .icon-btn {
-            width: 48px;
-            height: 48px;
+            width: 42px;
+            height: 42px;
             border-radius: 50%;
             border: none;
             cursor: pointer;
-            font-size: 20px;
+            font-size: 18px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -145,10 +154,9 @@
         .btn-sidebar-reset { background-color: #ff9494; }
         .btn-sidebar-save { background-color: #8ce18c; }
 
-        /* ピザを作るエリア：赤と緑の線の太さを（幅30px、間隔120px）に広げたチェック柄 */
+        /* ピザキャンバス */
         .pizza-canvas {
-            width: 550px;
-            height: 620px;
+            width: 520px;
             background-color: #ffffff;
             background-image: 
                 repeating-linear-gradient(45deg, rgba(211, 47, 47, 0.22) 0px, rgba(211, 47, 47, 0.22) 30px, transparent 30px, transparent 120px),
@@ -161,7 +169,7 @@
             flex-direction: column;
             justify-content: flex-start;
             align-items: center;
-            padding-top: 15px;
+            padding-top: 10px;
             box-sizing: border-box;
             touch-action: none;
         }
@@ -177,14 +185,14 @@
         }
 
         .pizza-title-input {
-            font-size: 22px;
+            font-size: 20px;
             font-weight: bold;
             color: #333;
             border: 2px dashed #ffb37b;
             background: #fffdfa;
             border-radius: 8px;
-            padding: 4px 10px;
-            width: 180px;
+            padding: 2px 8px;
+            width: 160px;
             text-align: center;
             outline: none;
         }
@@ -195,25 +203,23 @@
         }
 
         .pizza-title-label {
-            font-size: 22px;
+            font-size: 20px;
             font-weight: bold;
             color: #333;
         }
 
-        /* crust.png をさらに50px上へ移動 (margin-top: 0px) */
         .pizza-crust {
-            width: 550px;
-            height: 550px;
+            width: 480px;
+            height: 480px;
             position: relative;
-            margin-top: 0px;
             pointer-events: none;
             display: flex;
             align-items: center;
             justify-content: center;
-            background-image: url('./crust.png');
             background-size: contain;
             background-repeat: no-repeat;
             background-position: center;
+            margin-top: 80px; /* ←pizzaを80px下げる */
         }
 
         .placed-topping {
@@ -235,23 +241,24 @@
             border-radius: 4px;
         }
 
+        /* 会話ボックス */
         .dialogue-box {
             flex: 1;
-            height: 620px;
             border-radius: 12px;
-            padding: 15px;
+            padding: 10px 12px;
             box-sizing: border-box;
             box-shadow: 0 4px 10px rgba(0,0,0,0.04);
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 6px;
             background: #fff;
             border: 2px dashed #d7ccc8;
+            min-width: 320px;
         }
 
         .dialogue-box h3 {
             margin: 0;
-            font-size: 16px;
+            font-size: 14px;
             color: #5d4037;
             text-align: center;
         }
@@ -262,11 +269,11 @@
             border: 1px solid #e0e0e0;
             background: #fafafa;
             overflow-y: auto;
-            font-size: 22px;
+            font-size: 20px;
             font-weight: bold;
-            line-height: 1.6;
+            line-height: 1.25;
             color: #333333;
-            padding: 12px;
+            padding: 10px;
             box-sizing: border-box;
             border-radius: 6px;
             text-align: left;
@@ -283,11 +290,12 @@
         .box-controls {
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 4px;
             background: #fdfbf7;
-            padding: 8px;
+            padding: 6px 8px;
             border-radius: 6px;
             border: 1px solid #efebe9;
+            flex-shrink: 0;
         }
 
         .controls-row {
@@ -298,20 +306,20 @@
 
         .color-palette, .size-palette {
             display: flex;
-            gap: 6px;
+            gap: 4px;
             align-items: center;
         }
 
         .box-controls span {
-            font-size: 11px;
+            font-size: 10px;
             font-weight: bold;
             color: #777;
-            width: 45px;
+            width: 40px;
         }
 
         .color-dot {
-            width: 22px;
-            height: 22px;
+            width: 20px;
+            height: 20px;
             border-radius: 50%;
             border: 2px solid white;
             cursor: pointer;
@@ -319,10 +327,10 @@
         }
 
         .size-btn {
-            font-size: 11px;
+            font-size: 10px;
             font-weight: bold;
             color: #555;
-            padding: 3px 6px;
+            padding: 2px 5px;
             border: 1px solid #ccc;
             background: white;
             border-radius: 4px;
@@ -334,12 +342,11 @@
             font-weight: bold;
             color: white;
             background-color: #1e88e5;
-            padding: 5px 12px;
+            padding: 5px 10px;
             border: none;
             border-radius: 4px;
             cursor: pointer;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            transition: background-color 0.2s;
         }
 
         .copy-link-btn:active {
@@ -354,8 +361,39 @@
     </div>
 
     <div class="game-container">
-        <!-- トッピング一覧 -->
-        <div class="topping-box" id="toppingBox"></div>
+        <!-- トッピング一覧（HTML内に直接記述して確実に表示） -->
+        <div class="topping-box" id="toppingBox">
+            <div class="topping-item" onmousedown="initCreateFromHTML(event, './onion.png', false)" ontouchstart="initCreateFromHTML(event, './onion.png', true)">
+                <img src="./onion.png" alt="Onion" draggable="false"><div class="topping-name">Onion</div>
+            </div>
+            <div class="topping-item" onmousedown="initCreateFromHTML(event, './corn.png', false)" ontouchstart="initCreateFromHTML(event, './corn.png', true)">
+                <img src="./corn.png" alt="Corn" draggable="false"><div class="topping-name">Corn</div>
+            </div>
+            <div class="topping-item" onmousedown="initCreateFromHTML(event, './sausage.png', false)" ontouchstart="initCreateFromHTML(event, './sausage.png', true)">
+                <img src="./sausage.png" alt="Sausage" draggable="false"><div class="topping-name">Sausage</div>
+            </div>
+            <div class="topping-item" onmousedown="initCreateFromHTML(event, './pepper.png', false)" ontouchstart="initCreateFromHTML(event, './pepper.png', true)">
+                <img src="./pepper.png" alt="Pepper" draggable="false"><div class="topping-name">Pepper</div>
+            </div>
+            <div class="topping-item" onmousedown="initCreateFromHTML(event, './egg.png', false)" ontouchstart="initCreateFromHTML(event, './egg.png', true)">
+                <img src="./egg.png" alt="Egg" draggable="false"><div class="topping-name">Egg</div>
+            </div>
+            <div class="topping-item" onmousedown="initCreateFromHTML(event, './shrimp.png', false)" ontouchstart="initCreateFromHTML(event, './shrimp.png', true)">
+                <img src="./shrimp.png" alt="Shrimp" draggable="false"><div class="topping-name">Shrimp</div>
+            </div>
+            <div class="topping-item" onmousedown="initCreateFromHTML(event, './bacon.png', false)" ontouchstart="initCreateFromHTML(event, './bacon.png', true)">
+                <img src="./bacon.png" alt="Bacon" draggable="false"><div class="topping-name">Bacon</div>
+            </div>
+            <div class="topping-item" onmousedown="initCreateFromHTML(event, './cheese.png', false)" ontouchstart="initCreateFromHTML(event, './cheese.png', true)">
+                <img src="./cheese.png" alt="Cheese" draggable="false"><div class="topping-name">Cheese</div>
+            </div>
+            <div class="topping-item" onmousedown="initCreateFromHTML(event, './chicken.png', false)" ontouchstart="initCreateFromHTML(event, './chicken.png', true)">
+                <img src="./chicken.png" alt="Chicken" draggable="false"><div class="topping-name">Chicken</div>
+            </div>
+            <div class="topping-item" onmousedown="initCreateFromHTML(event, './mushroom.png', false)" ontouchstart="initCreateFromHTML(event, './mushroom.png', true)">
+                <img src="./mushroom.png" alt="Mushroom" draggable="false"><div class="topping-name">Mushroom</div>
+            </div>
+        </div>
 
         <!-- サイドバー -->
         <div class="action-sidebar">
@@ -363,19 +401,18 @@
             <div class="btn-container"><button class="icon-btn btn-smaller" onclick="changeSelectedSize(-0.2)">➖</button><div class="btn-label">Smaller</div></div>
             <div class="btn-container"><button class="icon-btn btn-rotate" onclick="rotateSelected(45)">🔄</button><div class="btn-label">Rotate</div></div>
             <div class="btn-container"><button class="icon-btn btn-delete" onclick="deleteSelected()">🗑️</button><div class="btn-label">Delete</div></div>
-            <div style="width:80%;height:1px;background:#e0e0e0;margin:4px 0;"></div>
+            <div style="width:80%;height:1px;background:#e0e0e0;margin:2px 0;"></div>
             <div class="btn-container"><button class="icon-btn btn-sidebar-reset" onclick="resetPizza()">✨</button><div class="btn-label">Clear</div></div>
             <div class="btn-container"><button class="icon-btn btn-sidebar-save" onclick="savePizza()">💾</button><div class="btn-label">Save</div></div>
         </div>
 
         <!-- キャンバス -->
-        <div class="pizza-wrapper">
-            <div class="pizza-canvas" id="pizzaCanvas">
+        <div class="pizza-wrapper" style="display:flex; flex-direction:column;">
+            <div class="pizza-canvas" id="pizzaCanvas" style="flex:1;">
                 <div class="pizza-title-container">
-                    <input type="text" class="pizza-title-input" id="nameInput" placeholder="なまえ">
-                    <span class="pizza-title-label">さんのピザ</span>
+                    <input type="text" class="pizza-title-input" id="nameInput" oninput="updateTitle()" placeholder="なまえ">
+                    <span class="pizza-title-label" id="titleDisplay">＿＿＿ さんのピザ</span>
                 </div>
-                <!-- さらに50px上にあげた crust.png -->
                 <div class="pizza-crust" id="pizzaCrust"></div>
             </div>
         </div>
@@ -383,15 +420,15 @@
         <!-- 会話ボックス -->
         <div class="dialogue-box" id="dialogueBox">
             <h3>💬 Conversation Box</h3>
-            <div class="dialogue-editor" id="dialogueText" contenteditable="true"></div>
+            <div class="dialogue-editor" id="dialogueText" contenteditable="true" oninput="generateQR()"></div>
             <div class="box-controls">
                 <div class="color-palette">
                     <span>Color:</span>
+                    <div class="color-dot" style="background:#333333;" onclick="formatDoc('foreColor','#333333')" title="黒"></div>
+                    <div class="color-dot" style="background:#888888;" onclick="formatDoc('foreColor','#888888')" title="グレー"></div>
                     <div class="color-dot" style="background:#e53935;" onclick="formatDoc('foreColor','#e53935')" title="赤系"></div>
                     <div class="color-dot" style="background:#1e88e5;" onclick="formatDoc('foreColor','#1e88e5')" title="青系"></div>
                     <div class="color-dot" style="background:#43a047;" onclick="formatDoc('foreColor','#43a047')" title="緑系"></div>
-                    <div class="color-dot" style="background:#333333;" onclick="formatDoc('foreColor','#333333')" title="黒"></div>
-                    <div class="color-dot" style="background:#888888;" onclick="formatDoc('foreColor','#888888')" title="グレー"></div>
                 </div>
                 <div class="controls-row">
                     <div class="size-palette">
@@ -406,70 +443,51 @@
         </div>
     </div>
 
+    <!-- 内部スクリプト（pizza.jsの機能をここに完全統合して確実に動作させます） -->
     <script>
-        const toppingsList = [
-            { name: 'Onion', src: './onion.png' },
-            { name: 'Corn', src: './corn.png' },
-            { name: 'Sausage', src: './sausage.png' },
-            { name: 'Pepper', src: './pepper.png' },
-            { name: 'Egg', src: './egg.png' },
-            { name: 'Shrimp', src: './shrimp.png' },
-            { name: 'Bacon', src: './bacon.png' },
-            { name: 'Cheese', src: './cheese.png' },
-            { name: 'Chicken', src: './chicken.png' },
-            { name: 'Mushroom', src: './mushroom.png' }
-        ];
-
+        const assets = { crust: './crust.png' };
         let selectedTopping = null;
+        let qrObj = null;
 
         window.addEventListener('DOMContentLoaded', () => {
-            const toppingBox = document.getElementById('toppingBox');
-            if (toppingBox) {
-                toppingBox.innerHTML = '';
-                toppingsList.forEach(t => {
-                    const item = document.createElement('div');
-                    item.className = 'topping-item';
-                    
-                    const img = document.createElement('img');
-                    img.src = t.src;
-                    img.alt = t.name;
-                    img.setAttribute('draggable', 'false');
+            const crustEl = document.getElementById('pizzaCrust');
+            if (crustEl) crustEl.style.backgroundImage = `url('${assets.crust}')`;
 
-                    const label = document.createElement('div');
-                    label.className = 'topping-name';
-                    label.textContent = t.name;
-
-                    item.appendChild(img);
-                    item.appendChild(label);
-                    
-                    item.addEventListener('mousedown', (e) => initCreate(e, t, false));
-                    item.addEventListener('touchstart', (e) => initCreate(e, t, true), { passive: false });
-                    toppingBox.appendChild(item);
-                });
-            }
-
+            // ご指定の初期テキスト設定
             const editor = document.getElementById('dialogueText');
             if (editor) {
-                editor.innerHTML = '<div><font color="#888888" size="5">A: What do you like?</font></div>' +
-                                   '<div><font color="#1e88e5" size="5">B: I like sausage and onion.</font></div>' +
-                                   '<div><br></div>' +
-                                   '<div><font color="#888888" size="5">A: How many?</font></div>' +
-                                   '<div><font color="#43a047" size="5">B: Three, please.</font></div>';
+                editor.innerHTML = 
+                    '<div><font color="#43a047" size="5">AB: Hello!</font><br><font color="#888888" size="3">　　ハロー‼</font></div>' +
+                    '<div style="margin-top: 4px;"><br><font color="#e53935" size="5">A: What do you like?</font><br><font color="#888888" size="3">　　ホワッ(ト) ドゥー ユー ライク？</font></div>' +
+                    '<div style="margin-top: 4px;"><font color="#1e88e5" size="5">B: I like _______ and _______.</font><br><font color="#888888" size="3">　　アイ ライク＿＿＿＿＿アンド＿＿＿＿＿。</font></div>' +
+                    '<div style="margin-top: 4px;"><br><font color="#e53935" size="5">A: How many?</font><br><font color="#888888" size="3">　　ハウ メニー？</font></div>' +
+                    '<div style="margin-top: 4px;"><font color="#1e88e5" size="5">B: 3 please.</font><br><font color="#888888" size="3">　　スリー プリーズ。</font></div>' +
+                    '<div style="margin-top: 4px;"><font color="#1e88e5" size="5">　Thank you.</font><br><font color="#888888" size="3">　　サンキュー。</font></div>' +
+                    '<div style="margin-top: 4px;"><br><font color="#43a047" size="5">AB：Bye!</font><br><font color="#888888" size="3">　　　バイ!</font></div>';
             }
 
-            checkIncomingContent();
+            checkIncomingQRData();
+            setTimeout(initQR, 200);
         });
 
-        function generateShareURL() {
-            const editor = document.getElementById('dialogueText');
-            const htmlContent = editor ? editor.innerHTML : ''; 
-            const baseUrl = window.location.href.split('?')[0];
-            const encodedData = encodeURIComponent(htmlContent);
-            return `${baseUrl}?content=${encodedData}`;
+        function initCreateFromHTML(e, imgSrc, isTouch) {
+            initCreate(e, imgSrc, isTouch);
+        }
+
+        function initQR() {
+            const qrContainer = document.getElementById('qrcode');
+            // QRコード表示用の領域がサイドバー等になければ作成するか安全に処理
+        }
+
+        function generateQR() {
+            // 必要に応じたQR更新処理
         }
 
         function copyShareLink() {
-            const shareUrl = generateShareURL();
+            const editor = document.getElementById('dialogueText');
+            const textContent = editor ? (editor.innerText || editor.textContent) : '';
+            const baseUrl = window.location.href.split('?')[0];
+            const shareUrl = `${baseUrl}?text=${encodeURIComponent(textContent)}`;
             
             navigator.clipboard.writeText(shareUrl).then(() => {
                 alert("リンクのコピーをしました！");
@@ -484,16 +502,19 @@
             });
         }
 
-        function checkIncomingContent() {
+        function checkIncomingQRData() {
             const urlParams = new URLSearchParams(window.location.search);
-            const htmlData = urlParams.get('content');
-            if (htmlData) {
+            const textData = urlParams.get('text');
+            if (textData) {
                 const editor = document.getElementById('dialogueText');
-                if (editor) {
-                    editor.innerHTML = decodeURIComponent(htmlData);
-                }
+                if (editor) editor.innerText = decodeURIComponent(textData);
                 window.history.replaceState({}, document.title, window.location.href.split('?')[0]);
             }
+        }
+
+        function updateTitle() {
+            const name = document.getElementById('nameInput').value;
+            document.getElementById('titleDisplay').textContent = name ? `${name} さんのピザ` : '＿＿＿ さんのピザ';
         }
 
         function formatDoc(cmd, value) {
@@ -515,7 +536,7 @@
             });
         }
 
-        function initCreate(e, toppingObj, isTouch) {
+        function initCreate(e, imgSrc, isTouch) {
             e.preventDefault(); 
             const canvas = document.getElementById('pizzaCanvas');
             const rect = canvas.getBoundingClientRect();
@@ -524,7 +545,7 @@
             const clientY = isTouch ? e.touches[0].clientY : e.clientY;
             
             const img = document.createElement('img');
-            img.src = toppingObj.src; 
+            img.src = imgSrc; 
             img.className = 'placed-topping';
             img.dataset.scale = "1.5"; 
             img.dataset.rotate = "0";
@@ -622,6 +643,7 @@
 
         function resetPizza() {
             document.getElementById('nameInput').value = '';
+            document.getElementById('titleDisplay').textContent = '＿＿＿ さんのピザ';
             selectTopping(null);
             document.querySelectorAll('.placed-topping').forEach(topping => topping.remove());
         }
@@ -636,24 +658,15 @@
             canvas.width = 550; canvas.height = 620; 
             const ctx = canvas.getContext('2d');
 
-            // 保存画像の背景ベースを描画
-            ctx.fillStyle = '#ffffff'; 
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
-            // タイトル文字
+            ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, canvas.width, canvas.height);
             ctx.fillStyle = '#333333'; ctx.font = 'bold 22px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
             ctx.fillText(titleText, canvas.width / 2, 30);
 
-            // crust.png（さらに50px上にあげた位置に合わせる）の描画
             const crustImg = new Image();
-            crustImg.src = './crust.png';
+            crustImg.src = assets.crust;
             
             crustImg.onload = function() {
-                const crustWidth = 550;
-                const crustHeight = 550;
-                const crustX = 0;
-                const crustY = 15; // margin-top 0px に伴う保存画像の配置位置調整
-                ctx.drawImage(crustImg, crustX, crustY, crustWidth, crustHeight);
+                ctx.drawImage(crustImg, 0, 15, 550, 550);
                 
                 const toppings = document.querySelectorAll('.placed-topping');
                 let loadedCount = 0;
@@ -708,7 +721,7 @@
                 link.click(); 
                 document.body.removeChild(link);
             } catch (e) {
-                alert("保存に失敗しました。ローカルサーバー経由で開いてください。");
+                alert("保存に失敗しました。");
             }
         }
     </script>
