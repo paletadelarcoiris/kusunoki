@@ -191,8 +191,8 @@
             border: 2px dashed #ffb37b;
             background: #fffdfa;
             border-radius: 8px;
-            padding: 2px 8px;
-            width: 160px;
+            padding: 4px 12px;
+            width: 180px;
             text-align: center;
             outline: none;
         }
@@ -202,7 +202,7 @@
             background: #fff;
         }
 
-        .pizza-title-label {
+        .pizza-title-suffix {
             font-size: 20px;
             font-weight: bold;
             color: #333;
@@ -219,7 +219,7 @@
             background-size: contain;
             background-repeat: no-repeat;
             background-position: center;
-            margin-top: 50px; /* ←pizzaを80px下げる */
+            margin-top: 15px;
         }
 
         .placed-topping {
@@ -361,7 +361,7 @@
     </div>
 
     <div class="game-container">
-        <!-- トッピング一覧（HTML内に直接記述して確実に表示） -->
+        <!-- トッピング一覧 -->
         <div class="topping-box" id="toppingBox">
             <div class="topping-item" onmousedown="initCreateFromHTML(event, './onion.png', false)" ontouchstart="initCreateFromHTML(event, './onion.png', true)">
                 <img src="./onion.png" alt="Onion" draggable="false"><div class="topping-name">Onion</div>
@@ -410,8 +410,8 @@
         <div class="pizza-wrapper" style="display:flex; flex-direction:column;">
             <div class="pizza-canvas" id="pizzaCanvas" style="flex:1;">
                 <div class="pizza-title-container">
-                    <input type="text" class="pizza-title-input" id="nameInput" oninput="updateTitle()" placeholder="なまえ">
-                    <span class="pizza-title-label" id="titleDisplay">＿＿＿ さんのピザ</span>
+                    <input type="text" class="pizza-title-input" id="nameInput" placeholder="おなまえ">
+                    <span class="pizza-title-suffix">さんのピザ</span>
                 </div>
                 <div class="pizza-crust" id="pizzaCrust"></div>
             </div>
@@ -443,45 +443,34 @@
         </div>
     </div>
 
-    <!-- 内部スクリプト（pizza.jsの機能をここに完全統合して確実に動作させます） -->
     <script>
         const assets = { crust: './crust.png' };
         let selectedTopping = null;
-        let qrObj = null;
 
         window.addEventListener('DOMContentLoaded', () => {
             const crustEl = document.getElementById('pizzaCrust');
             if (crustEl) crustEl.style.backgroundImage = `url('${assets.crust}')`;
 
-            // ご指定の初期テキスト設定
             const editor = document.getElementById('dialogueText');
             if (editor) {
                 editor.innerHTML = 
-                    '<div><font color="#43a047" size="5">AB: Hello!</font><br><font color="#888888" size="3">　　ハロー‼</font></div>' +
-                    '<div style="margin-top: 4px;"><br><font color="#e53935" size="5">A: What do you like?</font><br><font color="#888888" size="3">　　ホワッ(ト) ドゥー ユー ライク？</font></div>' +
-                    '<div style="margin-top: 4px;"><font color="#1e88e5" size="5">B: I like _______ and _______.</font><br><font color="#888888" size="3">　　アイ ライク＿＿＿＿＿アンド＿＿＿＿＿。</font></div>' +
-                    '<div style="margin-top: 4px;"><br><font color="#e53935" size="5">A: How many?</font><br><font color="#888888" size="3">　　ハウ メニー？</font></div>' +
-                    '<div style="margin-top: 4px;"><font color="#1e88e5" size="5">B: 3 please.</font><br><font color="#888888" size="3">　　スリー プリーズ。</font></div>' +
-                    '<div style="margin-top: 4px;"><font color="#1e88e5" size="5">　Thank you.</font><br><font color="#888888" size="3">　　サンキュー。</font></div>' +
-                    '<div style="margin-top: 4px;"><br><font color="#43a047" size="5">AB：Bye!</font><br><font color="#888888" size="3">　　　バイ!</font></div>';
+                    '<div><font color="#43a047" size="5">  AB: Hello</font><br><font color="#888888" size="3">  ハロー</font></div>' +
+                    '<div style="margin-top: 4px;"><font color="#e53935" size="5">  A: &nbsp; What do you like?</font><br><font color="#888888" size="3">  ホワッ(ト) ドゥー ユー ライク？</font></div>' +
+                    '<div style="margin-top: 4px;"><font color="#1e88e5" size="5">  B: I like _______ and _______.</font><br><font color="#888888" size="3">  アイ ライク＿＿＿＿＿アンド＿＿＿＿＿。</font></div>' +
+                    '<div style="margin-top: 4px;"><font color="#e53935" size="5">  A: How many?</font><br><font color="#888888" size="3">  ハウ メニー？</font></div>' +
+                    '<div style="margin-top: 4px;"><font color="#1e88e5" size="5">  B: 3 please.</font><br><font color="#888888" size="3">  スリー プリーズ</font></div>' +
+                    '<div style="margin-top: 4px;"><font color="#1e88e5" size="5">  &nbsp;Thank you.</font><br><font color="#888888" size="3">  サンキュー</font></div>' +
+                    '<div style="margin-top: 4px;"><font color="#43a047" size="5">  AB：Bye</font><br><font color="#888888" size="3">  バイ</font></div>';
             }
 
             checkIncomingQRData();
-            setTimeout(initQR, 200);
         });
 
         function initCreateFromHTML(e, imgSrc, isTouch) {
             initCreate(e, imgSrc, isTouch);
         }
 
-        function initQR() {
-            const qrContainer = document.getElementById('qrcode');
-            // QRコード表示用の領域がサイドバー等になければ作成するか安全に処理
-        }
-
-        function generateQR() {
-            // 必要に応じたQR更新処理
-        }
+        function generateQR() {}
 
         function copyShareLink() {
             const editor = document.getElementById('dialogueText');
@@ -510,11 +499,6 @@
                 if (editor) editor.innerText = decodeURIComponent(textData);
                 window.history.replaceState({}, document.title, window.location.href.split('?')[0]);
             }
-        }
-
-        function updateTitle() {
-            const name = document.getElementById('nameInput').value;
-            document.getElementById('titleDisplay').textContent = name ? `${name} さんのピザ` : '＿＿＿ さんのピザ';
         }
 
         function formatDoc(cmd, value) {
@@ -643,7 +627,6 @@
 
         function resetPizza() {
             document.getElementById('nameInput').value = '';
-            document.getElementById('titleDisplay').textContent = '＿＿＿ さんのピザ';
             selectTopping(null);
             document.querySelectorAll('.placed-topping').forEach(topping => topping.remove());
         }
@@ -651,22 +634,39 @@
         function savePizza() {
             if (selectedTopping) selectedTopping.classList.remove('selected');
             const nameInputVal = document.getElementById('nameInput').value.trim();
-            const fileName = nameInputVal || 'pizza';
-            const titleText = (nameInputVal ? nameInputVal : '＿＿＿') + ' さんのピザ';
+            const fileName = nameInputVal ? nameInputVal : 'pizza';
+            const titleText = nameInputVal ? `${nameInputVal} さんのピザ` : '';
 
             const canvas = document.createElement('canvas');
-            canvas.width = 550; canvas.height = 620; 
+            canvas.width = 550; canvas.height = 600; 
             const ctx = canvas.getContext('2d');
 
-            ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = '#333333'; ctx.font = 'bold 22px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-            ctx.fillText(titleText, canvas.width / 2, 30);
+            // 1. 背景を描画
+            ctx.fillStyle = '#ffffff'; 
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+            ctx.fillStyle = 'rgba(211, 47, 47, 0.22)';
+            drawStripes(ctx, canvas.width, canvas.height, 45, 30, 120);
+            ctx.fillStyle = 'rgba(46, 125, 50, 0.22)';
+            drawStripes(ctx, canvas.width, canvas.height, -45, 30, 120);
+
+            // 2. お名前テキスト（「〇〇 さんのピザ」）を描画
+            if (titleText) {
+                ctx.fillStyle = '#333333'; 
+                ctx.font = 'bold 24px Arial'; 
+                ctx.textAlign = 'center'; 
+                ctx.textBaseline = 'top';
+                ctx.fillText(titleText, canvas.width / 2, 15);
+            }
+
+            // 3. ピザ生地を描画
             const crustImg = new Image();
             crustImg.src = assets.crust;
             
             crustImg.onload = function() {
-                ctx.drawImage(crustImg, 0, 15, 550, 550);
+                const crustX = (canvas.width - 500) / 2;
+                const crustY = 55; // 入力欄の下に配置
+                ctx.drawImage(crustImg, crustX, crustY, 500, 500);
                 
                 const toppings = document.querySelectorAll('.placed-topping');
                 let loadedCount = 0;
@@ -681,15 +681,20 @@
                     const img = new Image();
                     img.src = topping.src;
                     const x = parseFloat(topping.style.left);
-                    const y = parseFloat(topping.style.top);
+                    const canvasBox = document.getElementById('pizzaCanvas').getBoundingClientRect();
+                    
+                    const relX = x;
+                    const relY = parseFloat(topping.style.top);
+                    
                     const scale = parseFloat(topping.dataset.scale || 1.5);
                     const rotate = parseInt(topping.dataset.rotate || 0);
 
                     img.onload = function() {
                         ctx.save();
-                        ctx.translate(x, y);
+                        const scaleRatio = 550 / canvasBox.width;
+                        ctx.translate(relX * scaleRatio, relY * scaleRatio);
                         ctx.rotate((rotate * Math.PI) / 180);
-                        const size = 70 * scale;
+                        const size = 70 * scale * scaleRatio;
                         ctx.drawImage(img, -size / 2, -size / 2, size, size);
                         ctx.restore();
                         
@@ -710,6 +715,23 @@
             crustImg.onerror = function() {
                 alert("crust.pngの読み込みに失敗しました。");
             };
+        }
+
+        function drawStripes(ctx, width, height, angle, stripeWidth, gap) {
+            ctx.save();
+            ctx.beginPath();
+            ctx.rect(0, 0, width, height);
+            ctx.clip();
+
+            ctx.translate(width / 2, height / 2);
+            ctx.rotate((angle * Math.PI) / 180);
+            ctx.translate(-width, -height * 1.5);
+
+            const size = Math.max(width, height) * 3;
+            for (let i = -size; i < size; i += (stripeWidth + gap)) {
+                ctx.fillRect(i, 0, stripeWidth, size * 3);
+            }
+            ctx.restore();
         }
 
         function triggerDownload(canvas, filename) {
