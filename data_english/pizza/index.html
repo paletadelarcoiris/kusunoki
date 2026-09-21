@@ -219,7 +219,7 @@
             background-size: contain;
             background-repeat: no-repeat;
             background-position: center;
-            margin-top: 15px;
+            margin-top: 50px;
         }
 
         .placed-topping {
@@ -357,7 +357,7 @@
 <body>
 
     <div class="top-header">
-        <h1>🍕 Pizza Maker 🍕</h1>
+        <h1>🍕 PIZZA 🍕</h1>
     </div>
 
     <div class="game-container">
@@ -424,6 +424,8 @@
             <div class="box-controls">
                 <div class="color-palette">
                     <span>Color:</span>
+                    <div class="color-dot" style="background:#333333;" onclick="formatDoc('foreColor','#333333')" title="黒"></div>
+                    <div class="color-dot" style="background:#888888;" onclick="formatDoc('foreColor','#888888')" title="グレー"></div>
                     <div class="color-dot" style="background:#e53935;" onclick="formatDoc('foreColor','#e53935')" title="赤系"></div>
                     <div class="color-dot" style="background:#1e88e5;" onclick="formatDoc('foreColor','#1e88e5')" title="青系"></div>
                     <div class="color-dot" style="background:#43a047;" onclick="formatDoc('foreColor','#43a047')" title="緑系"></div>
@@ -635,7 +637,8 @@
             if (selectedTopping) selectedTopping.classList.remove('selected');
             const nameInputVal = document.getElementById('nameInput').value.trim();
             const fileName = nameInputVal ? nameInputVal : 'pizza';
-            const titleText = nameInputVal ? `${nameInputVal} さんのピザ` : '';
+            // 名前が空でも「さんのピザ」が出るように修正、名前があれば「〇〇 さんのピザ」
+            const titleText = `${nameInputVal} さんのピザ`;
 
             const canvas = document.createElement('canvas');
             canvas.width = 550; canvas.height = 600; 
@@ -651,13 +654,11 @@
             drawStripes(ctx, canvas.width, canvas.height, -45, 30, 120);
 
             // 2. お名前テキスト（「〇〇 さんのピザ」）を描画
-            if (titleText) {
-                ctx.fillStyle = '#333333'; 
-                ctx.font = 'bold 24px Arial'; 
-                ctx.textAlign = 'center'; 
-                ctx.textBaseline = 'top';
-                ctx.fillText(titleText, canvas.width / 2, 15);
-            }
+            ctx.fillStyle = '#333333'; 
+            ctx.font = 'bold 24px Arial'; 
+            ctx.textAlign = 'center'; 
+            ctx.textBaseline = 'top';
+            ctx.fillText(titleText, canvas.width / 2, 15);
 
             // 3. ピザ生地を描画
             const crustImg = new Image();
