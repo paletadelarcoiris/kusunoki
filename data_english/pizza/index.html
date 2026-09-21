@@ -417,7 +417,7 @@
         <div class="pizza-wrapper" style="display:flex; flex-direction:column;">
             <div class="pizza-canvas" id="pizzaCanvas" style="flex:1;">
                 <div class="pizza-title-container">
-                    <input type="text" class="pizza-title-input" id="nameInput" placeholder="なまえ">
+                    <input type="text" class="pizza-title-input" id="nameInput" placeholder="おなまえ">
                     <span class="pizza-title-suffix">さんのPIZZA</span>
                 </div>
                 <div class="pizza-crust" id="pizzaCrust"></div>
@@ -458,7 +458,7 @@
             const crustEl = document.getElementById('pizzaCrust');
             if (crustEl) crustEl.style.backgroundImage = `url('${assets.crust}')`;
 
-            const editor = document.getElementById('dialogueText'
+            const editor = document.getElementById('dialogueText');
             if (editor) {
                 // 初回はURLパラメータがなければデフォルト文字を表示
                 const urlParams = new URLSearchParams(window.location.search);
@@ -469,7 +469,7 @@
                         '<div style="margin-top: 4px;"><font color="#1e88e5" size="5">  B: I like _______ and _______.</font><br><font color="#888888" size="3">　　アイ ライク＿＿＿＿＿アンド＿＿＿＿＿。</font></div>' +
                         '<div style="margin-top: 4px;"><br><font color="#e53935" size="5">  A: How many?</font><br><font color="#888888" size="3">　　ハウ メニー？</font></div>' +
                         '<div style="margin-top: 4px;"><font color="#1e88e5" size="5">  B: 3 please.</font><br><font color="#888888" size="3">　　スリー プリーズ</font></div>' +
-                        '<div style="margin-top: 4px;"><font color="#1e88e5" size="5">   Thank you.</font><br><font color="#888888" size="3">　　サンキュー</font></div>' +
+                        '<div style="margin-top: 4px;"><font color="#1e88e5" size="5">　　Thank you.</font><br><font color="#888888" size="3">　　サンキュー</font></div>' +
                         '<div style="margin-top: 4px;"><br><font color="#43a047" size="5">  AB：Bye</font><br><font color="#888888" size="3">　　バイ</font></div>';
                 }
             }
