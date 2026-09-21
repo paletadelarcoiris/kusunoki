@@ -11,7 +11,7 @@
             font-family: Arial, sans-serif;
             background: #fcf8f2;
             margin: 0;
-            padding: 10px;
+            padding: 8px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -27,10 +27,10 @@
             justify-content: center;
             align-items: center;
             width: 100%;
-            max-width: 1280px;
-            margin-bottom: 8px;
+            max-width: 1350px;
+            margin-bottom: 6px;
             background: #fff;
-            padding: 8px 20px;
+            padding: 6px 20px;
             border-radius: 10px;
             box-shadow: 0 2px 6px rgba(0,0,0,0.06);
             box-sizing: border-box;
@@ -40,7 +40,7 @@
         h1 {
             color: #d32f2f;
             margin: 0;
-            font-size: 32px;
+            font-size: 28px;
             font-weight: 800;
             letter-spacing: 1px;
         }
@@ -49,7 +49,7 @@
             display: flex;
             flex-direction: row-reverse;
             width: 100%;
-            max-width: 1280px;
+            max-width: 1350px;
             gap: 12px;
             align-items: stretch;
             justify-content: center;
@@ -58,16 +58,25 @@
             margin-bottom: 5px;
         }
 
+        /* 左側パネル（トッピング一覧 ＆ 下部アイコン6個） */
+        .left-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            width: 210px;
+            flex-shrink: 0;
+        }
+
         /* トッピング一覧ボックス */
         .topping-box {
-            width: 170px;
+            flex: 1;
             background: #fff;
             border: 2px dashed #ccc;
             border-radius: 12px;
-            padding: 8px;
+            padding: 10px;
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 8px;
+            gap: 10px;
             align-content: start;
             box-sizing: border-box;
             overflow-y: auto;
@@ -76,8 +85,8 @@
         .topping-item {
             background: #fff9e6;
             border: 1px solid #ffe0b2;
-            border-radius: 8px;
-            padding: 4px 2px;
+            border-radius: 10px;
+            padding: 6px;
             text-align: center;
             cursor: pointer;
             -webkit-user-drag: none;
@@ -85,54 +94,50 @@
         }
 
         .topping-item img {
-            width: 50px;
-            height: 50px;
+            width: 66px;
+            height: 66px;
             object-fit: contain;
             pointer-events: none;
             -webkit-user-drag: none;
         }
 
         .topping-name {
-            font-size: 10px;
+            font-size: 12px;
             color: #5d4037;
             font-weight: bold;
-            margin-top: 1px;
+            margin-top: 3px;
         }
 
-        /* サイドバー */
-        .action-sidebar {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            justify-content: center;
-            align-items: center;
+        /* 下部アイコン6個エリア */
+        .bottom-actions-grid {
             background: #fff;
-            padding: 8px 6px;
-            border-radius: 12px;
             border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 10px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
             box-sizing: border-box;
-            flex-shrink: 0;
         }
 
         .btn-container {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 1px;
-            width: 60px;
+            gap: 3px;
         }
 
         .btn-label {
-            font-size: 10px;
+            font-size: 11px;
             color: #666;
             font-weight: bold;
             text-align: center;
         }
 
         .icon-btn {
-            width: 42px;
-            height: 42px;
+            width: 44px;
+            height: 44px;
             border-radius: 50%;
             border: none;
             cursor: pointer;
@@ -154,9 +159,9 @@
         .btn-sidebar-reset { background-color: #ff9494; }
         .btn-sidebar-save { background-color: #8ce18c; }
 
-        /* ピザキャンバス（エリアを広げるため幅を600pxに拡大） */
+        /* ピザキャンバス（元のサイズに戻しました） */
         .pizza-canvas {
-            width: 600px;
+            width: 630px;
             background-color: #ffffff;
             background-image: 
                 repeating-linear-gradient(45deg, rgba(211, 47, 47, 0.22) 0px, rgba(211, 47, 47, 0.22) 30px, transparent 30px, transparent 120px),
@@ -192,7 +197,7 @@
             background: #fffdfa;
             border-radius: 8px;
             padding: 4px 12px;
-            width: 100px; /* 80px縮めて100pxに変更 */
+            width: 150px;
             text-align: center;
             outline: none;
         }
@@ -208,10 +213,10 @@
             color: #333;
         }
 
-        /* ピザ生地（エリアいっぱいに広げるため580pxに変更） */
+        /* ピザ生地（元のサイズ） */
         .pizza-crust {
-            width: 580px;
-            height: 580px;
+            width: 600px;
+            height: 600px;
             position: relative;
             pointer-events: none;
             display: flex;
@@ -220,7 +225,7 @@
             background-size: contain;
             background-repeat: no-repeat;
             background-position: center;
-            margin-top: 50px;
+            margin-top: 5px;
         }
 
         .placed-topping {
@@ -246,7 +251,7 @@
         .dialogue-box {
             flex: 1;
             border-radius: 12px;
-            padding: 10px 12px;
+            padding: 10px 14px;
             box-sizing: border-box;
             box-shadow: 0 4px 10px rgba(0,0,0,0.04);
             display: flex;
@@ -362,49 +367,50 @@
     </div>
 
     <div class="game-container">
-        <!-- トッピング一覧 -->
-        <div class="topping-box" id="toppingBox">
-            <div class="topping-item" onmousedown="initCreateFromHTML(event, './onion.png', false)" ontouchstart="initCreateFromHTML(event, './onion.png', true)">
-                <img src="./onion.png" alt="Onion" draggable="false"><div class="topping-name">Onion</div>
+        <!-- 左側パネル（トッピング一覧 ＆ 下部アイコン6個） -->
+        <div class="left-panel">
+            <div class="topping-box" id="toppingBox">
+                <div class="topping-item" onmousedown="initCreateFromHTML(event, './onion.png', false)" ontouchstart="initCreateFromHTML(event, './onion.png', true)">
+                    <img src="./onion.png" alt="Onion" draggable="false"><div class="topping-name">Onion</div>
+                </div>
+                <div class="topping-item" onmousedown="initCreateFromHTML(event, './corn.png', false)" ontouchstart="initCreateFromHTML(event, './corn.png', true)">
+                    <img src="./corn.png" alt="Corn" draggable="false"><div class="topping-name">Corn</div>
+                </div>
+                <div class="topping-item" onmousedown="initCreateFromHTML(event, './sausage.png', false)" ontouchstart="initCreateFromHTML(event, './sausage.png', true)">
+                    <img src="./sausage.png" alt="Sausage" draggable="false"><div class="topping-name">Sausage</div>
+                </div>
+                <div class="topping-item" onmousedown="initCreateFromHTML(event, './pepper.png', false)" ontouchstart="initCreateFromHTML(event, './pepper.png', true)">
+                    <img src="./pepper.png" alt="Pepper" draggable="false"><div class="topping-name">Pepper</div>
+                </div>
+                <div class="topping-item" onmousedown="initCreateFromHTML(event, './egg.png', false)" ontouchstart="initCreateFromHTML(event, './egg.png', true)">
+                    <img src="./egg.png" alt="Egg" draggable="false"><div class="topping-name">Egg</div>
+                </div>
+                <div class="topping-item" onmousedown="initCreateFromHTML(event, './shrimp.png', false)" ontouchstart="initCreateFromHTML(event, './shrimp.png', true)">
+                    <img src="./shrimp.png" alt="Shrimp" draggable="false"><div class="topping-name">Shrimp</div>
+                </div>
+                <div class="topping-item" onmousedown="initCreateFromHTML(event, './bacon.png', false)" ontouchstart="initCreateFromHTML(event, './bacon.png', true)">
+                    <img src="./bacon.png" alt="Bacon" draggable="false"><div class="topping-name">Bacon</div>
+                </div>
+                <div class="topping-item" onmousedown="initCreateFromHTML(event, './cheese.png', false)" ontouchstart="initCreateFromHTML(event, './cheese.png', true)">
+                    <img src="./cheese.png" alt="Cheese" draggable="false"><div class="topping-name">Cheese</div>
+                </div>
+                <div class="topping-item" onmousedown="initCreateFromHTML(event, './chicken.png', false)" ontouchstart="initCreateFromHTML(event, './chicken.png', true)">
+                    <img src="./chicken.png" alt="Chicken" draggable="false"><div class="topping-name">Chicken</div>
+                </div>
+                <div class="topping-item" onmousedown="initCreateFromHTML(event, './mushroom.png', false)" ontouchstart="initCreateFromHTML(event, './mushroom.png', true)">
+                    <img src="./mushroom.png" alt="Mushroom" draggable="false"><div class="topping-name">Mushroom</div>
+                </div>
             </div>
-            <div class="topping-item" onmousedown="initCreateFromHTML(event, './corn.png', false)" ontouchstart="initCreateFromHTML(event, './corn.png', true)">
-                <img src="./corn.png" alt="Corn" draggable="false"><div class="topping-name">Corn</div>
-            </div>
-            <div class="topping-item" onmousedown="initCreateFromHTML(event, './sausage.png', false)" ontouchstart="initCreateFromHTML(event, './sausage.png', true)">
-                <img src="./sausage.png" alt="Sausage" draggable="false"><div class="topping-name">Sausage</div>
-            </div>
-            <div class="topping-item" onmousedown="initCreateFromHTML(event, './pepper.png', false)" ontouchstart="initCreateFromHTML(event, './pepper.png', true)">
-                <img src="./pepper.png" alt="Pepper" draggable="false"><div class="topping-name">Pepper</div>
-            </div>
-            <div class="topping-item" onmousedown="initCreateFromHTML(event, './egg.png', false)" ontouchstart="initCreateFromHTML(event, './egg.png', true)">
-                <img src="./egg.png" alt="Egg" draggable="false"><div class="topping-name">Egg</div>
-            </div>
-            <div class="topping-item" onmousedown="initCreateFromHTML(event, './shrimp.png', false)" ontouchstart="initCreateFromHTML(event, './shrimp.png', true)">
-                <img src="./shrimp.png" alt="Shrimp" draggable="false"><div class="topping-name">Shrimp</div>
-            </div>
-            <div class="topping-item" onmousedown="initCreateFromHTML(event, './bacon.png', false)" ontouchstart="initCreateFromHTML(event, './bacon.png', true)">
-                <img src="./bacon.png" alt="Bacon" draggable="false"><div class="topping-name">Bacon</div>
-            </div>
-            <div class="topping-item" onmousedown="initCreateFromHTML(event, './cheese.png', false)" ontouchstart="initCreateFromHTML(event, './cheese.png', true)">
-                <img src="./cheese.png" alt="Cheese" draggable="false"><div class="topping-name">Cheese</div>
-            </div>
-            <div class="topping-item" onmousedown="initCreateFromHTML(event, './chicken.png', false)" ontouchstart="initCreateFromHTML(event, './chicken.png', true)">
-                <img src="./chicken.png" alt="Chicken" draggable="false"><div class="topping-name">Chicken</div>
-            </div>
-            <div class="topping-item" onmousedown="initCreateFromHTML(event, './mushroom.png', false)" ontouchstart="initCreateFromHTML(event, './mushroom.png', true)">
-                <img src="./mushroom.png" alt="Mushroom" draggable="false"><div class="topping-name">Mushroom</div>
-            </div>
-        </div>
 
-        <!-- サイドバー -->
-        <div class="action-sidebar">
-            <div class="btn-container"><button class="icon-btn btn-bigger" onclick="changeSelectedSize(0.2)">➕</button><div class="btn-label">Bigger</div></div>
-            <div class="btn-container"><button class="icon-btn btn-smaller" onclick="changeSelectedSize(-0.2)">➖</button><div class="btn-label">Smaller</div></div>
-            <div class="btn-container"><button class="icon-btn btn-rotate" onclick="rotateSelected(45)">🔄</button><div class="btn-label">Rotate</div></div>
-            <div class="btn-container"><button class="icon-btn btn-delete" onclick="deleteSelected()">🗑️</button><div class="btn-label">Delete</div></div>
-            <div style="width:80%;height:1px;background:#e0e0e0;margin:2px 0;"></div>
-            <div class="btn-container"><button class="icon-btn btn-sidebar-reset" onclick="resetPizza()">✨</button><div class="btn-label">Clear</div></div>
-            <div class="btn-container"><button class="icon-btn btn-sidebar-save" onclick="savePizza()">💾</button><div class="btn-label">Save</div></div>
+            <!-- 下部アイコン6個エリア -->
+            <div class="bottom-actions-grid">
+                <div class="btn-container"><button class="icon-btn btn-bigger" onclick="changeSelectedSize(0.2)">➕</button><div class="btn-label">Bigger</div></div>
+                <div class="btn-container"><button class="icon-btn btn-smaller" onclick="changeSelectedSize(-0.2)">➖</button><div class="btn-label">Smaller</div></div>
+                <div class="btn-container"><button class="icon-btn btn-rotate" onclick="rotateSelected(45)">🔄</button><div class="btn-label">Rotate</div></div>
+                <div class="btn-container"><button class="icon-btn btn-delete" onclick="deleteSelected()">🗑️</button><div class="btn-label">Delete</div></div>
+                <div class="btn-container"><button class="icon-btn btn-sidebar-reset" onclick="resetPizza()">✨</button><div class="btn-label">Clear</div></div>
+                <div class="btn-container"><button class="icon-btn btn-sidebar-save" onclick="savePizza()">💾</button><div class="btn-label">Save</div></div>
+            </div>
         </div>
 
         <!-- キャンバス -->
@@ -638,12 +644,10 @@
             const fileName = nameInputVal ? nameInputVal : 'pizza';
             const titleText = `${nameInputVal} さんのピザ`;
 
-            // 保存用の画像解像度もエリア拡大(600px)に合わせて調整
             const canvas = document.createElement('canvas');
-            canvas.width = 630; canvas.height = 650; 
+            canvas.width = 650; canvas.height = 630; 
             const ctx = canvas.getContext('2d');
 
-            // 1. 背景を描画
             ctx.fillStyle = '#ffffff'; 
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -652,19 +656,17 @@
             ctx.fillStyle = 'rgba(46, 125, 50, 0.22)';
             drawStripes(ctx, canvas.width, canvas.height, -45, 30, 120);
 
-            // 2. お名前テキスト（「〇〇 さんのピザ」）を描画
             ctx.fillStyle = '#333333'; 
             ctx.font = 'bold 24px Arial'; 
             ctx.textAlign = 'center'; 
             ctx.textBaseline = 'top';
             ctx.fillText(titleText, canvas.width / 2, 12);
 
-            // 3. ピザ生地を描画（580pxサイズに対応）
             const crustImg = new Image();
             crustImg.src = assets.crust;
             
             crustImg.onload = function() {
-                const crustSize = 580;
+                const crustSize = 600;
                 const crustX = (canvas.width - crustSize) / 2;
                 const crustY = 50; 
                 ctx.drawImage(crustImg, crustX, crustY, crustSize, crustSize);
