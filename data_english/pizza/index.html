@@ -154,9 +154,9 @@
         .btn-sidebar-reset { background-color: #ff9494; }
         .btn-sidebar-save { background-color: #8ce18c; }
 
-        /* ピザキャンバス */
+        /* ピザキャンバス（エリアを広げるため幅を600pxに拡大） */
         .pizza-canvas {
-            width: 520px;
+            width: 600px;
             background-color: #ffffff;
             background-image: 
                 repeating-linear-gradient(45deg, rgba(211, 47, 47, 0.22) 0px, rgba(211, 47, 47, 0.22) 30px, transparent 30px, transparent 120px),
@@ -192,7 +192,7 @@
             background: #fffdfa;
             border-radius: 8px;
             padding: 4px 12px;
-            width: 180px;
+            width: 100px; /* 80px縮めて100pxに変更 */
             text-align: center;
             outline: none;
         }
@@ -208,9 +208,10 @@
             color: #333;
         }
 
+        /* ピザ生地（エリアいっぱいに広げるため580pxに変更） */
         .pizza-crust {
-            width: 520px;
-            height: 520px;
+            width: 580px;
+            height: 580px;
             position: relative;
             pointer-events: none;
             display: flex;
@@ -635,11 +636,11 @@
             if (selectedTopping) selectedTopping.classList.remove('selected');
             const nameInputVal = document.getElementById('nameInput').value.trim();
             const fileName = nameInputVal ? nameInputVal : 'pizza';
-            // 名前が空でも「さんのピザ」が出るように修正、名前があれば「〇〇 さんのピザ」
             const titleText = `${nameInputVal} さんのピザ`;
 
+            // 保存用の画像解像度もエリア拡大(600px)に合わせて調整
             const canvas = document.createElement('canvas');
-            canvas.width = 550; canvas.height = 600; 
+            canvas.width = 630; canvas.height = 650; 
             const ctx = canvas.getContext('2d');
 
             // 1. 背景を描画
@@ -656,16 +657,17 @@
             ctx.font = 'bold 24px Arial'; 
             ctx.textAlign = 'center'; 
             ctx.textBaseline = 'top';
-            ctx.fillText(titleText, canvas.width / 2, 15);
+            ctx.fillText(titleText, canvas.width / 2, 12);
 
-            // 3. ピザ生地を描画
+            // 3. ピザ生地を描画（580pxサイズに対応）
             const crustImg = new Image();
             crustImg.src = assets.crust;
             
             crustImg.onload = function() {
-                const crustX = (canvas.width - 500) / 2;
-                const crustY = 55; // 入力欄の下に配置
-                ctx.drawImage(crustImg, crustX, crustY, 500, 500);
+                const crustSize = 580;
+                const crustX = (canvas.width - crustSize) / 2;
+                const crustY = 50; 
+                ctx.drawImage(crustImg, crustX, crustY, crustSize, crustSize);
                 
                 const toppings = document.querySelectorAll('.placed-topping');
                 let loadedCount = 0;
@@ -690,7 +692,7 @@
 
                     img.onload = function() {
                         ctx.save();
-                        const scaleRatio = 550 / canvasBox.width;
+                        const scaleRatio = canvas.width / canvasBox.width;
                         ctx.translate(relX * scaleRatio, relY * scaleRatio);
                         ctx.rotate((rotate * Math.PI) / 180);
                         const size = 70 * scale * scaleRatio;
