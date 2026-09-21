@@ -418,7 +418,7 @@
             <div class="pizza-canvas" id="pizzaCanvas" style="flex:1;">
                 <div class="pizza-title-container">
                     <input type="text" class="pizza-title-input" id="nameInput" placeholder="おなまえ">
-                    <span class="pizza-title-suffix">さんのピザ</span>
+                    <span class="pizza-title-suffix">さんのPIZZA</span>
                 </div>
                 <div class="pizza-crust" id="pizzaCrust"></div>
             </div>
@@ -642,7 +642,7 @@
             if (selectedTopping) selectedTopping.classList.remove('selected');
             const nameInputVal = document.getElementById('nameInput').value.trim();
             const fileName = nameInputVal ? nameInputVal : 'pizza';
-            const titleText = `${nameInputVal} さんのピザ`;
+            const titleText = `${nameInputVal} さんのPIZZA`;
 
             const canvas = document.createElement('canvas');
             canvas.width = 650; canvas.height = 680; 
