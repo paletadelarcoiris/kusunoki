@@ -29,7 +29,7 @@
             width: 100%;
             max-width: 1350px;
             margin-bottom: 6px;
-            background: #fff;
+            background: rgba(46, 125, 50, 0.22); /* チェック模様の緑色 */
             padding: 6px 20px;
             border-radius: 10px;
             box-shadow: 0 2px 6px rgba(0,0,0,0.06);
@@ -38,9 +38,9 @@
         }
 
         h1 {
-            color: #d32f2f;
+            color: #d32f2f; /* 文字色を赤色に変更 */
             margin: 0;
-            font-size: 28px;
+            font-size: 26px;
             font-weight: 800;
             letter-spacing: 1px;
         }
@@ -67,45 +67,49 @@
             flex-shrink: 0;
         }
 
-        /* トッピング一覧ボックス */
+        /* トッピング一覧ボックス：縦の余白を詰めてサイズを最適化 */
         .topping-box {
             flex: 1;
             background: #fff;
             border: 2px dashed #ccc;
             border-radius: 12px;
-            padding: 10px;
+            padding: 4px;
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            align-content: start;
+            gap: 3px;
+            align-content: stretch;
             box-sizing: border-box;
-            overflow-y: auto;
+            overflow-y: hidden;
         }
 
         .topping-item {
             background: #fff9e6;
             border: 1px solid #ffe0b2;
-            border-radius: 10px;
-            padding: 6px;
+            border-radius: 6px;
+            padding: 2px;
             text-align: center;
             cursor: pointer;
             -webkit-user-drag: none;
             user-select: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
         }
 
         .topping-item img {
-            width: 66px;
-            height: 66px;
+            width: 58px;
+            height: 58px;
             object-fit: contain;
             pointer-events: none;
             -webkit-user-drag: none;
         }
 
         .topping-name {
-            font-size: 12px;
+            font-size: 11px;
             color: #5d4037;
             font-weight: bold;
-            margin-top: 3px;
+            margin-top: 1px;
         }
 
         /* 下部アイコン6個エリア */
@@ -113,10 +117,10 @@
             background: #fff;
             border: 1px solid #e0e0e0;
             border-radius: 12px;
-            padding: 10px;
+            padding: 8px;
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 8px;
+            gap: 6px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
             box-sizing: border-box;
         }
@@ -125,7 +129,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 3px;
+            gap: 2px;
         }
 
         .btn-label {
@@ -136,8 +140,8 @@
         }
 
         .icon-btn {
-            width: 44px;
-            height: 44px;
+            width: 42px;
+            height: 42px;
             border-radius: 50%;
             border: none;
             cursor: pointer;
@@ -363,7 +367,7 @@
 <body>
 
     <div class="top-header">
-        <h1>🍕 PIZZA 🍕</h1>
+        <h1>🍕 Let's Make a PIZZA 🍕</h1>
     </div>
 
     <div class="game-container">
@@ -460,18 +464,14 @@
 
             const editor = document.getElementById('dialogueText');
             if (editor) {
-                // 初回はURLパラメータがなければデフォルト文字を表示
-                const urlParams = new URLSearchParams(window.location.search);
-                if (!urlParams.get('text')) {
-                    editor.innerHTML = 
-                        '<div><font color="#43a047" size="5">  AB: Hello</font><br><font color="#888888" size="3">　　ハロー</font></div>' +
-                        '<div style="margin-top: 4px;"><br><font color="#e53935" size="5">  A: What do you like?</font><br><font color="#888888" size="3">　　ホワッ(ト) ドゥー ユー ライク？</font></div>' +
-                        '<div style="margin-top: 4px;"><font color="#1e88e5" size="5">  B: I like _______ and _______.</font><br><font color="#888888" size="3">　　アイ ライク＿＿＿＿＿アンド＿＿＿＿＿。</font></div>' +
-                        '<div style="margin-top: 4px;"><br><font color="#e53935" size="5">  A: How many?</font><br><font color="#888888" size="3">　　ハウ メニー？</font></div>' +
-                        '<div style="margin-top: 4px;"><font color="#1e88e5" size="5">  B: 3 please.</font><br><font color="#888888" size="3">　　スリー プリーズ</font></div>' +
-                        '<div style="margin-top: 4px;"><font color="#1e88e5" size="5">　Thank you.</font><br><font color="#888888" size="3">　　サンキュー</font></div>' +
-                        '<div style="margin-top: 4px;"><br><font color="#43a047" size="5">  AB：Bye</font><br><font color="#888888" size="3">　　バイ</font></div>';
-                }
+                editor.innerHTML = 
+                    '<div><font color="#43a047" size="5">  AB: Hello</font><br><font color="#888888" size="3">  ハロー</font></div>' +
+                    '<div style="margin-top: 4px;"><font color="#e53935" size="5">  A: &nbsp; What do you like?</font><br><font color="#888888" size="3">  ホワッ(ト) ドゥー ユー ライク？</font></div>' +
+                    '<div style="margin-top: 4px;"><font color="#1e88e5" size="5">  B: I like _______ and _______.</font><br><font color="#888888" size="3">  アイ ライク＿＿＿＿＿アンド＿＿＿＿＿。</font></div>' +
+                    '<div style="margin-top: 4px;"><font color="#e53935" size="5">  A: How many?</font><br><font color="#888888" size="3">  ハウ メニー？</font></div>' +
+                    '<div style="margin-top: 4px;"><font color="#1e88e5" size="5">  B: 3 please.</font><br><font color="#888888" size="3">  スリー プリーズ</font></div>' +
+                    '<div style="margin-top: 4px;"><font color="#1e88e5" size="5">   Thank you.</font><br><font color="#888888" size="3">  サンキュー</font></div>' +
+                    '<div style="margin-top: 4px;"><font color="#43a047" size="5">  AB：Bye</font><br><font color="#888888" size="3">   バイ</font></div>';
             }
 
             checkIncomingQRData();
@@ -485,10 +485,9 @@
 
         function copyShareLink() {
             const editor = document.getElementById('dialogueText');
-            // innerHTMLを使って色やサイズなどのタグ情報を含めたままURLにする
-            const htmlContent = editor ? editor.innerHTML : '';
+            const textContent = editor ? (editor.innerText || editor.textContent) : '';
             const baseUrl = window.location.href.split('?')[0];
-            const shareUrl = `${baseUrl}?text=${encodeURIComponent(htmlContent)}`;
+            const shareUrl = `${baseUrl}?text=${encodeURIComponent(textContent)}`;
             
             navigator.clipboard.writeText(shareUrl).then(() => {
                 alert("リンクのコピーをしました！");
@@ -508,7 +507,7 @@
             const textData = urlParams.get('text');
             if (textData) {
                 const editor = document.getElementById('dialogueText');
-                if (editor) editor.innerHTML = decodeURIComponent(textData); // innerHTMLで書き戻すことで装飾を保持
+                if (editor) editor.innerText = decodeURIComponent(textData);
                 window.history.replaceState({}, document.title, window.location.href.split('?')[0]);
             }
         }
@@ -543,7 +542,7 @@
             const img = document.createElement('img');
             img.src = imgSrc; 
             img.className = 'placed-topping';
-            img.dataset.scale = "1.5"; 
+            img.dataset.scale = "2.5"; /* 初期サイズ2.5倍 */
             img.dataset.rotate = "0";
             img.style.left = (clientX - rect.left) + 'px'; 
             img.style.top = (clientY - rect.top) + 'px';
@@ -619,7 +618,7 @@
             if (!selectedTopping) return;
             let currentScale = parseFloat(selectedTopping.dataset.scale) + amount;
             if (currentScale < 0.4) currentScale = 0.4;
-            if (currentScale > 2.4) currentScale = 2.4;
+            if (currentScale > 3.5) currentScale = 3.5;
             selectedTopping.dataset.scale = currentScale.toFixed(1);
             applyTransform(selectedTopping);
         }
@@ -694,7 +693,7 @@
                     const relX = x;
                     const relY = parseFloat(topping.style.top);
                     
-                    const scale = parseFloat(topping.dataset.scale || 1.5);
+                    const scale = parseFloat(topping.dataset.scale || 2.5);
                     const rotate = parseInt(topping.dataset.rotate || 0);
 
                     img.onload = function() {
