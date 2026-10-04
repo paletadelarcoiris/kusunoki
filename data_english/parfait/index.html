@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Parfait Maker</title>
+    <!-- QRコード生成用ライブラリ -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #fcf8f2;
+            margin: 0;
+            padding: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            user-select: none;
+            -webkit-user-select: none;
+            box-sizing: border-box;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .top-header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            max-width: 1350px;
+            margin-bottom: 6px;
+            background: #fff;
+            padding: 6px 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+            box-sizing: border-box;
+            flex-shrink: 0;
+        }
+
+        h1 {
+            color: #d81b60;
+            margin: 0;
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+
+        .game-container {
+            display: flex;
+            flex-direction: row-reverse;
+            width: 100%;
+            max-width: 1350px;
+            gap: 12px;
+            align-items: stretch;
+            justify-content: center;
+            flex: 1;
+            min-height: 0;
+            margin-bottom: 5px;
+        }
+
+        /* 左側パネル（トッピング一覧 ＆ 下部アイコン6個） */
+        .left-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            width: 220px;
+            flex-shrink: 0;
+        }
+
+        /* トッピング一覧ボックス */
+        .topping-box {
+            background: #fff;
+            border: 2px dashed #ccc;
+            border-radius: 12px;
+            padding: 8px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 6px;
+            align-content: start;
+            box-sizing: border-box;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .topping-item {
+            background: #fff0f5;
+            border: 1px solid #ffc0cb;
+            border-radius: 8px;
+            padding: 4px;
+            text-align: center;
+            cursor: pointer;
+            -webkit-user-drag: none;
+            user-select: none;
+        }
+
+        .topping-item img {
+            width: 56px;
+            height: 56px;
+            object-fit: contain;
+            pointer-events: none;
+            -webkit-user-drag: none;
+        }
+
+        .topping-name {
+            font-size: 11px;
+            color: #5d4037;
+            font-weight: bold;
+            margin-top: 1px;
+        }
+
+        /* 下部アイコン6個エリア */
+        .bottom-actions-grid {
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 8px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 6px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            box-sizing: border-box;
+            flex: 1;
+            align-content: center;
+        }
+
+        .btn-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .btn-label {
+            font-size: 11px;
+            color: #666;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.1s;
+        }
+
+        .icon-btn:active {
+            transform: scale(0.9);
+        }
+
+        .btn-bigger, .btn-smaller, .btn-rotate { background-color: #79c9ff; }
+        .btn-delete { background-color: #ffb37b; }
+        .btn-sidebar-reset { background-color: #ff9494; }
+        .btn-sidebar-save { background-color: #8ce18c; }
+
+        /* パフェキャンバス本体 */
+        .parfait-canvas {
+            width: 630px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            box-sizing: border-box;
+            touch-action: none;
+        }
+
+        /* 背景のほんわかしたランダム水玉 */
+        .parfait-canvas::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle, rgba(239, 83, 80, 0.3) 24px, transparent 26px),
+                radial-gradient(circle, rgba(255, 167, 38, 0.3) 18px, transparent 20px),
+                radial-gradient(circle, rgba(255, 238, 88, 0.3) 32px, transparent 34px),
+                radial-gradient(circle, rgba(102, 187, 106, 0.3) 22px, transparent 24px),
+                radial-gradient(circle, rgba(41, 182, 246, 0.3) 30px, transparent 32px),
+                radial-gradient(circle, rgba(126, 87, 194, 0.3) 20px, transparent 22px),
+                radial-gradient(circle, rgba(236, 64, 122, 0.3) 28px, transparent 30px);
+            background-size: 380px 420px, 290px 340px, 430px 460px, 330px 370px, 400px 450px, 300px 330px, 360px 410px;
+            background-position: 15px 55px, 135px 245px, 215px 45px, 55px 345px, 435px 115px, 335px 365px, 255px 195px;
+            filter: blur(1.5px);
+            -webkit-filter: blur(1.5px);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .parfait-title-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            width: 100%;
+            z-index: 2;
+            flex-shrink: 0;
+        }
+
+        .parfait-title-input {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+            border: 2px dashed #ffb37b;
+            background: #fffdfa;
+            border-radius: 8px;
+            padding: 4px 12px;
+            width: 150px;
+            text-align: center;
+            outline: none;
+        }
+
+        .parfait-title-input:focus {
+            border-color: #1e88e5;
+            background: #fff;
+        }
+
+        .parfait-title-suffix {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        /* グラス（常に最前面に配置するため z-index を高く設定）[cite: 2] */
+        .parfait-glass {
+            width: 580px;
+            height: 580px;
+            position: relative;
+            z-index: 10; /* トッピングよりも手前に表示[cite: 2] */
+            pointer-events: none; /* グラス自体はクリックを透過させ、中のトッピングを操作可能にする */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center bottom;
+            margin-bottom: 5px;
+            flex-shrink: 0;
+        }
+
+        /* トッピングはグラスの奥（低めの z-index）に配置[cite: 2] */
+        .placed-topping {
+            position: absolute;
+            width: 70px;
+            height: 70px;
+            object-fit: contain;
+            cursor: move;
+            transform: translate(-50%, -50%);
+            z-index: 3; /* グラス(10)より低くすることで中に入っているように見せる[cite: 2] */
+            pointer-events: auto;
+            -webkit-user-drag: none;
+            box-sizing: border-box;
+            touch-action: none;
+        }
+
+        .placed-topping.selected {
+            border: 2px dashed #79c9ff;
+            border-radius: 4px;
+        }
+
+        /* 会話ボックス */
+        .dialogue-box {
+            flex: 1;
+            border-radius: 12px;
+            padding: 10px 14px;
+            box-sizing: border-box;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            background: #fff;
+            border: 2px dashed #d7ccc8;
+            min-width: 320px;
+        }
+
+        .dialogue-box h3 {
+            margin: 0;
+            font-size: 14px;
+            color: #5d4037;
+            text-align: center;
+        }
+
+        .dialogue-editor {
+            width: 100%;
+            flex: 1;
+            border: 1px solid #e0e0e0;
+            background: #fafafa;
+            overflow-y: auto;
+            font-size: 20px;
+            font-weight: bold;
+            line-height: 1.25;
+            color: #333333;
+            padding: 10px;
+            box-sizing: border-box;
+            border-radius: 6px;
+            text-align: left;
+            touch-action: auto !important;
+            user-select: text !important;
+            -webkit-user-select: text !important;
+        }
+
+        .dialogue-editor:focus {
+            background: #fff;
+            outline: 2px solid #79c9ff;
+        }
+
+        .box-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            background: #fdfbf7;
+            padding: 6px 8px;
+            border-radius: 6px;
+            border: 1px solid #efebe9;
+            flex-shrink: 0;
+        }
+
+        .controls-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .color-palette, .size-palette {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+
+        .box-controls span {
+            font-size: 10px;
+            font-weight: bold;
+            color: #777;
+            width: 40px;
+        }
+
+        .color-dot {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid white;
+            cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+        }
+
+        .size-btn {
+            font-size: 10px;
+            font-weight: bold;
+            color: #555;
+            padding: 2px 5px;
+            border: 1px solid #ccc;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .copy-link-btn {
+            font-size: 11px;
+            font-weight: bold;
+            color: white;
+            background-color: #1e88e5;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .copy-link-btn:active {
+            background-color: #1565c0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-header">
+        <h1>🍨 PARFAIT MAKER 🍨</h1>
+    </div>
+
+    <div class="game-container">
+        <!-- 左側パネル（トッピング一覧 ＆ 下部アイコン6個） -->
+        <div class="left-panel">
+            <div class="topping-box" id="toppingBox">
+                <div class="topping-item" onmousedown="initCreateFromHTML(event, './strawberry.png', false)" ontouchstart="initCreateFromHTML(event, './strawberry.png', true)">
+                    <img src="./strawberry.png" alt="Strawberry" draggable="false"><div class="topping-name">Strawberry</div>
+                </div>
+                <div class="topping-item" onmousedown="initCreateFromHTML(event, './banana.png', false)" ontouchstart="initCreateFromHTML(event, './banana.png', true)">
+                    <img src="./banana.png" alt="Banana" draggable="false"><div class="topping-name">Banana</div>
+                </div>
+                <div class="topping-item" onmousedown="initCreateFromHTML(event, './ice_cream.png', false)" ontouchstart="initCreateFromHTML(event, './ice_cream.png', true)">
+                    <img src="./ice_cream.png" alt="Ice Cream" draggable="false"><div class="topping-name">Ice Cream</div>
+                </div>
+                <div class="topping-item" onmousedown="initCreateFromHTML(event, './whipped_cream.png', false)" ontouchstart="initCreateFromHTML(event, './whipped_cream.png', true)">
+                    <img src="./whipped_cream.png" alt="Cream" draggable="false"><div class="topping-name">Cream</div>
+                </div>
+                <div class="topping-item" onmousedown="initCreateFromHTML(event, './cherry.png', false)" ontouchstart="initCreateFromHTML(event, './cherry.png', true)">
+                    <img src="./cherry.png" alt="Cherry" draggable="false"><div class="topping-name">Cherry</div>
+                </div>
+                <div class="topping-item" onmousedown="initCreateFromHTML(event, './chocolate.png', false)" ontouchstart="initCreateFromHTML(event, './chocolate.png', true)">
+                    <img src="./chocolate.png" alt="Chocolate" draggable="false"><div class="topping-name">Chocolate</div>
+                </div>
+                <div class="topping-item" onmousedown="initCreateFromHTML(event, './cookie.png', false)" ontouchstart="initCreateFromHTML(event, './cookie.png', true)">
+                    <img src="./cookie.png" alt="Cookie" draggable="false"><div class="topping-name">Cookie</div>
+                </div>
+                <div class="topping-item" onmousedown="initCreateFromHTML(event, './mint.png', false)" ontouchstart="initCreateFromHTML(event, './mint.png', true)">
+                    <img src="./mint.png" alt="Mint" draggable="false"><div class="topping-name">Mint</div>
+                </div>
+                <div class="topping-item" onmousedown="initCreateFromHTML(event, './blueberry.png', false)" ontouchstart="initCreateFromHTML(event, './blueberry.png', true)">
+                    <img src="./blueberry.png" alt="Blueberry" draggable="false"><div class="topping-name">Blueberry</div>
+                </div>
+                <div class="topping-item" onmousedown="initCreateFromHTML(event, './wafer.png', false)" ontouchstart="initCreateFromHTML(event, './wafer.png', true)">
+                    <img src="./wafer.png" alt="Wafer" draggable="false"><div class="topping-name">Wafer</div>
+                </div>
+            </div>
+
+            <!-- 下部アイコン6個エリア -->
+            <div class="bottom-actions-grid">
+                <div class="btn-container"><button class="icon-btn btn-bigger" onclick="changeSelectedSize(0.2)">➕</button><div class="btn-label">Bigger</div></div>
+                <div class="btn-container"><button class="icon-btn btn-smaller" onclick="changeSelectedSize(-0.2)">➖</button><div class="btn-label">Smaller</div></div>
+                <div class="btn-container"><button class="icon-btn btn-rotate" onclick="rotateSelected(45)">🔄</button><div class="btn-label">Rotate</div></div>
+                <div class="btn-container"><button class="icon-btn btn-delete" onclick="deleteSelected()">🗑️</button><div class="btn-label">Delete</div></div>
+                <div class="btn-container"><button class="icon-btn btn-sidebar-reset" onclick="resetParfait()">✨</button><div class="btn-label">Clear</div></div>
+                <div class="btn-container"><button class="icon-btn btn-sidebar-save" onclick="saveParfait()">💾</button><div class="btn-label">Save</div></div>
+            </div>
+        </div>
+
+        <!-- キャンバス -->
+        <div class="parfait-wrapper" style="display:flex; flex-direction:column;">
+            <div class="parfait-canvas" id="parfaitCanvas" style="flex:1;">
+                <div class="parfait-title-container">
+                    <input type="text" class="parfait-title-input" id="nameInput" placeholder="おなまえ">
+                    <span class="parfait-title-suffix">さんのPARFAIT</span>
+                </div>
+                <div class="parfait-glass" id="parfaitGlass"></div>
+            </div>
+        </div>
+
+        <!-- 会話ボックス -->
+        <div class="dialogue-box" id="dialogueBox">
+            <h3>💬 Conversation Box</h3>
+            <div class="dialogue-editor" id="dialogueText" contenteditable="true" oninput="generateQR()"></div>
+            <div class="box-controls">
+                <div class="color-palette">
+                    <span>Color:</span>
+                    <div class="color-dot" style="background:#e53935;" onclick="formatDoc('foreColor','#e53935')" title="赤系"></div>
+                    <div class="color-dot" style="background:#1e88e5;" onclick="formatDoc('foreColor','#1e88e5')" title="青系"></div>
+                    <div class="color-dot" style="background:#43a047;" onclick="formatDoc('foreColor','#43a047')" title="緑系"></div>
+                    <div class="color-dot" style="background:#333333;" onclick="formatDoc('foreColor','#333333')" title="黒"></div>
+                    <div class="color-dot" style="background:#888888;" onclick="formatDoc('foreColor','#888888')" title="グレー"></div>
+                </div>
+                <div class="controls-row">
+                    <div class="size-palette">
+                        <span>Size:</span>
+                        <button class="size-btn" onclick="formatDoc('fontSize','3')">小 (S)</button>
+                        <button class="size-btn" onclick="formatDoc('fontSize','5')">中 (M)</button>
+                        <button class="size-btn" onclick="formatDoc('fontSize','6')">大 (L)</button>
+                    </div>
+                    <button class="copy-link-btn" onclick="copyShareLink()">リンクのコピー</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const assets = { glass: './glass.png' };
+        let selectedTopping = null;
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const glassEl = document.getElementById('parfaitGlass');
+            if (glassEl) glassEl.style.backgroundImage = `url('${assets.glass}')`;
+
+            const editor = document.getElementById('dialogueText');
+            if (editor) {
+                editor.innerHTML = 
+                    '<div><font color="#43a047" size="5">  AB: Hello</font><br><font color="#888888" size="3">  ハロー</font></div>' +
+                    '<div style="margin-top: 4px;"><font color="#e53935" size="5">  A: &nbsp; What do you like?</font><br><font color="#888888" size="3">  ホワッ(ト) ドゥー ユー ライク？</font></div>' +
+                    '<div style="margin-top: 4px;"><font color="#1e88e5" size="5">  B: I like _______ and _______.</font><br><font color="#888888" size="3">  アイ ライク＿＿＿＿＿アンド＿＿＿＿＿。</font></div>' +
+                    '<div style="margin-top: 4px;"><font color="#e53935" size="5">  A: How many?</font><br><font color="#888888" size="3">  ハウ メニー？</font></div>' +
+                    '<div style="margin-top: 4px;"><font color="#1e88e5" size="5">  B: 3 please.</font><br><font color="#888888" size="3">  スリー プリーズ</font></div>' +
+                    '<div style="margin-top: 4px;"><font color="#1e88e5" size="5">   Thank you.</font><br><font color="#888888" size="3">  サンキュー</font></div>' +
+                    '<div style="margin-top: 4px;"><font color="#43a047" size="5">  AB：Bye</font><br><font color="#888888" size="3">   バイ</font></div>';
+            }
+
+            checkIncomingQRData();
+        });
+
+        function initCreateFromHTML(e, imgSrc, isTouch) {
+            initCreate(e, imgSrc, isTouch);
+        }
+
+        function generateQR() {}
+
+        function copyShareLink() {
+            const editor = document.getElementById('dialogueText');
+            const textContent = editor ? (editor.innerText || editor.textContent) : '';
+            const baseUrl = window.location.href.split('?')[0];
+            const shareUrl = `${baseUrl}?text=${encodeURIComponent(textContent)}`;
+            
+            navigator.clipboard.writeText(shareUrl).then(() => {
+                alert("リンクのコピーをしました！");
+            }).catch(err => {
+                const textarea = document.createElement('textarea');
+                textarea.value = shareUrl;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                alert("リンクのコピーをしました！");
+            });
+        }
+
+        function checkIncomingQRData() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const textData = urlParams.get('text');
+            if (textData) {
+                const editor = document.getElementById('dialogueText');
+                if (editor) editor.innerText = decodeURIComponent(textData);
+                window.history.replaceState({}, document.title, window.location.href.split('?')[0]);
+            }
+        }
+
+        function formatDoc(cmd, value) {
+            document.execCommand(cmd, false, value);
+            const editor = document.getElementById('dialogueText');
+            if (editor) editor.focus();
+        }
+
+        function selectTopping(el) {
+            if (selectedTopping) selectedTopping.classList.remove('selected');
+            selectedTopping = el;
+            if (selectedTopping) selectedTopping.classList.add('selected');
+        }
+
+        const canvasEl = document.getElementById('parfaitCanvas');
+        if (canvasEl) {
+            canvasEl.addEventListener('pointerdown', function(e) {
+                if (!e.target.classList.contains('placed-topping')) selectTopping(null);
+            });
+        }
+
+        function initCreate(e, imgSrc, isTouch) {
+            e.preventDefault(); 
+            const canvas = document.getElementById('parfaitCanvas');
+            const rect = canvas.getBoundingClientRect();
+            
+            const clientX = isTouch ? e.touches[0].clientX : e.clientX;
+            const clientY = isTouch ? e.touches[0].clientY : e.clientY;
+            
+            const img = document.createElement('img');
+            img.src = imgSrc; 
+            img.className = 'placed-topping';
+            img.dataset.scale = "1.5"; 
+            img.dataset.rotate = "0";
+            img.style.left = (clientX - rect.left) + 'px'; 
+            img.style.top = (clientY - rect.top) + 'px';
+            img.setAttribute('draggable', 'false');
+
+            canvas.appendChild(img);
+            selectTopping(img);
+            applyTransform(img);
+            
+            startDragLogic(e, img, isTouch);
+        }
+
+        function applyTransform(img) {
+            img.style.transform = `translate(-50%, -50%) scale(${img.dataset.scale}) rotate(${img.dataset.rotate}deg)`;
+        }
+
+        function startDragLogic(e, element, isTouch) {
+            selectTopping(element);
+            const canvas = document.getElementById('parfaitCanvas');
+            
+            const moveHandler = (evt) => {
+                evt.preventDefault(); 
+                const rect = canvas.getBoundingClientRect();
+                const clientX = isTouch ? evt.touches[0].clientX : evt.clientX;
+                const clientY = isTouch ? evt.touches[0].clientY : evt.clientY;
+                element.style.left = (clientX - rect.left) + 'px';
+                element.style.top = (clientY - rect.top) + 'px';
+            };
+            
+            const stopHandler = () => {
+                if (isTouch) {
+                    window.removeEventListener('touchmove', moveHandler);
+                    window.removeEventListener('touchend', stopHandler);
+                } else {
+                    window.removeEventListener('mousemove', moveHandler);
+                    window.removeEventListener('mouseup', stopHandler);
+                }
+                
+                const finalRect = element.getBoundingClientRect();
+                const canvasRect = canvas.getBoundingClientRect();
+                if (finalRect.left < canvasRect.left || finalRect.right > canvasRect.right ||
+                    finalRect.top < canvasRect.top || finalRect.bottom > canvasRect.bottom) {
+                    if (selectedTopping === element) selectTopping(null);
+                    element.remove();
+                }
+            };
+
+            if (isTouch) {
+                window.addEventListener('touchmove', moveHandler, { passive: false });
+                window.addEventListener('touchend', stopHandler);
+            } else {
+                window.addEventListener('mousemove', moveHandler);
+                window.addEventListener('mouseup', stopHandler);
+            }
+        }
+
+        if (canvasEl) {
+            canvasEl.addEventListener('mousedown', (e) => {
+                if (e.target.classList.contains('placed-topping')) {
+                    e.preventDefault();
+                    startDragLogic(e, e.target, false);
+                }
+            });
+            canvasEl.addEventListener('touchstart', (e) => {
+                if (e.target.classList.contains('placed-topping')) {
+                    e.preventDefault();
+                    startDragLogic(e, e.target, true);
+                }
+            }, { passive: false });
+        }
+
+        function changeSelectedSize(amount) {
+            if (!selectedTopping) return;
+            let currentScale = parseFloat(selectedTopping.dataset.scale) + amount;
+            if (currentScale < 0.4) currentScale = 0.4;
+            if (currentScale > 2.4) currentScale = 2.4;
+            selectedTopping.dataset.scale = currentScale.toFixed(1);
+            applyTransform(selectedTopping);
+        }
+
+        function rotateSelected(degree) {
+            if (!selectedTopping) return;
+            let currentRotate = (parseInt(selectedTopping.dataset.rotate) + degree) % 360;
+            selectedTopping.dataset.rotate = currentRotate;
+            applyTransform(selectedTopping);
+        }
+
+        function deleteSelected() {
+            if (!selectedTopping) return;
+            selectedTopping.remove();
+            selectedTopping = null;
+        }
+
+        function resetParfait() {
+            document.getElementById('nameInput').value = '';
+            selectTopping(null);
+            document.querySelectorAll('.placed-topping').forEach(topping => topping.remove());
+        }
+
+        function saveParfait() {
+            if (selectedTopping) selectedTopping.classList.remove('selected');
+            const nameInputVal = document.getElementById('nameInput').value.trim();
+            const fileName = nameInputVal ? nameInputVal : 'parfait';
+            const titleText = `${nameInputVal} さんのPARFAIT`;
+
+            const canvas = document.createElement('canvas');
+            canvas.width = 650; canvas.height = 670; 
+            const ctx = canvas.getContext('2d');
+
+            ctx.fillStyle = '#ffffff'; 
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // 保存画像用：ランダムな虹色の水玉を描画
+            drawRainbowBubbles(ctx, canvas.width, canvas.height);
+
+            ctx.fillStyle = '#333333'; 
+            ctx.font = 'bold 24px Arial'; 
+            ctx.textAlign = 'center'; 
+            ctx.textBaseline = 'top';
+            ctx.fillText(titleText, canvas.width / 2, 12);
+
+            const toppings = document.querySelectorAll('.placed-topping');
+            let loadedCount = 0;
+
+            const glassImg = new Image();
+            glassImg.src = assets.glass;
+
+            // 保存時も「トッピングを先に描き、後からグラスを上描き」する順序に変更
+            glassImg.onload = function() {
+                const glassSize = 580;
+                const glassX = (canvas.width - glassSize) / 2;
+                const glassY = canvas.height - glassSize - 10;
+
+                const drawGlassAndFinish = () => {
+                    // トッピングの上にグラスを重ねて描画する
+                    ctx.drawImage(glassImg, glassX, glassY, glassSize, glassSize);
+                    triggerDownload(canvas, fileName);
+                    if (selectedTopping) selectedTopping.classList.add('selected');
+                };
+
+                if (toppings.length === 0) {
+                    drawGlassAndFinish();
+                    return;
+                }
+
+                toppings.forEach(topping => {
+                    const img = new Image();
+                    img.src = topping.src;
+                    const x = parseFloat(topping.style.left);
+                    const canvasBox = document.getElementById('parfaitCanvas').getBoundingClientRect();
+                    
+                    const relX = x;
+                    const relY = parseFloat(topping.style.top);
+                    
+                    const scale = parseFloat(topping.dataset.scale || 1.5);
+                    const rotate = parseInt(topping.dataset.rotate || 0);
+
+                    img.onload = function() {
+                        ctx.save();
+                        const scaleRatio = canvas.width / canvasBox.width;
+                        ctx.translate(relX * scaleRatio, relY * scaleRatio);
+                        ctx.rotate((rotate * Math.PI) / 180);
+                        const size = 70 * scale * scaleRatio;
+                        ctx.drawImage(img, -size / 2, -size / 2, size, size);
+                        ctx.restore();
+                        
+                        loadedCount++; 
+                        if (loadedCount === toppings.length) { 
+                            drawGlassAndFinish();
+                        }
+                    };
+                    img.onerror = function() {
+                        loadedCount++;
+                        if (loadedCount === toppings.length) {
+                            drawGlassAndFinish();
+                        }
+                    };
+                });
+            };
+            glassImg.onerror = function() {
+                alert("glass.pngの読み込みに失敗しました。");
+            };
+        }
+
+        function drawRainbowBubbles(ctx, width, height) {
+            const bubbles = [
+                {x: 60, y: 90, r: 24, color: 'rgba(239, 83, 80, 0.3)'},
+                {x: 140, y: 220, r: 18, color: 'rgba(255, 167, 38, 0.3)'},
+                {x: 220, y: 80, r: 32, color: 'rgba(255, 238, 88, 0.3)'},
+                {x: 300, y: 180, r: 22, color: 'rgba(102, 187, 106, 0.3)'},
+                {x: 90, y: 380, r: 30, color: 'rgba(41, 182, 246, 0.3)'},
+                {x: 190, y: 480, r: 20, color: 'rgba(126, 87, 194, 0.3)'},
+                {x: 270, y: 340, r: 28, color: 'rgba(236, 64, 122, 0.3)'},
+                {x: 370, y: 80, r: 24, color: 'rgba(239, 83, 80, 0.3)'},
+                {x: 440, y: 200, r: 32, color: 'rgba(255, 167, 38, 0.3)'},
+                {x: 520, y: 100, r: 18, color: 'rgba(255, 238, 88, 0.3)'},
+                {x: 600, y: 190, r: 26, color: 'rgba(102, 187, 106, 0.3)'},
+                {x: 400, y: 380, r: 22, color: 'rgba(41, 182, 246, 0.3)'},
+                {x: 480, y: 460, r: 30, color: 'rgba(126, 87, 194, 0.3)'},
+                {x: 570, y: 350, r: 20, color: 'rgba(236, 64, 122, 0.3)'},
+                {x: 80, y: 580, r: 28, color: 'rgba(239, 83, 80, 0.3)'},
+                {x: 200, y: 600, r: 22, color: 'rgba(255, 167, 38, 0.3)'},
+                {x: 340, y: 580, r: 26, color: 'rgba(102, 187, 106, 0.3)'},
+                {x: 470, y: 590, r: 32, color: 'rgba(41, 182, 246, 0.3)'},
+                {x: 590, y: 540, r: 18, color: 'rgba(126, 87, 194, 0.3)'}
+            ];
+
+            bubbles.forEach(b => {
+                ctx.beginPath();
+                ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+                ctx.fillStyle = b.color;
+                ctx.fill();
+            });
+        }
+
+        function triggerDownload(canvas, filename) {
+            try {
+                const link = document.createElement('a'); 
+                link.download = `${filename}_parfait.png`;
+                link.href = canvas.toDataURL('image/png'); 
+                document.body.appendChild(link);
+                link.click(); 
+                document.body.removeChild(link);
+            } catch (e) {
+                alert("保存される画像ファイルの作成に失敗しました。");
+            }
+        }
+    </script>
+<style>
+    /* パターンA: もしimgタグでglass.pngが表示されている場合 */
+    img[src*="glass.png"], 
+    img[id*="glass"], 
+    img[class*="glass"] {
+        opacity: 0.6 !important; /* 👈 ここでお好みの濃さ（0.95〜0.98など）に調整してください */
+    }
+
+    /* パターンB: もし背景画像（CSS）としてglass.pngが表示されている場合 */
+    [style*="glass.png"],
+    .glass,
+    #glass {
+        opacity: 0.6 !important; /* 👈 ここも同じ数値にします */
+    }
+</style>
+
+<!-- ここからコピーして </body> の直前に貼り付けてください -->
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+    // 画面内のコンテナとグラス画像を取得
+    const canvasContainer = document.getElementById('parfait-canvas-container');
+    const glassImg = document.getElementById('glass-layer') || Array.from(document.querySelectorAll('img')).find(img => img.src.includes('glass.png'));
+    
+    if (!canvasContainer || !glassImg) return;
+
+    // 定期的に画面内のすべてのトッピング（.layer-item）に制限イベントを適用する
+    setInterval(() => {
+        const items = canvasContainer.querySelectorAll('.layer-item');
+        items.forEach(item => {
+            // すでにイベント設定済みの場合はスキップ
+            if (item.dataset.boundSet === "true") return;
+            item.dataset.boundSet = "true";
+
+            // マウスが動いている間（ドラッグ中）の処理を監視・上書きする
+            item.addEventListener('mousedown', function(e) {
+                function limitMovement() {
+                    let containerRect = canvasContainer.getBoundingClientRect();
+                    let glassRect = glassImg.getBoundingClientRect();
+                    let itemRect = item.getBoundingClientRect();
+
+                    // コンテナを基準とした現在の位置
+                    let currentLeft = itemRect.left - containerRect.left;
+                    let currentTop = itemRect.top - containerRect.top;
+
+                    // グラスのコンテナ基準の位置
+                    let glassLeft = glassRect.left - containerRect.left;
+                    let glassTop = glassRect.top - containerRect.top;
+
+                    // 1. グラスより上のエリア（上方）なら制限なしで自由に動かせる
+                    if (currentTop + itemRect.height * 0.5 < glassTop) {
+                        return; 
+                    }
+
+                    // 2. グラスと同じ高さにいる場合、グラスの左右幅（透明ではない実体エリア）の内側に制限する
+                    // ※一般的なパフェグラスの形状（上部が広く、下に向かってすぼまる形）に合わせて自動計算します
+                    let progress = (currentTop - glassTop) / glassRect.height; // グラスの上からどれくらい下にあるか(0.0〜1.0)
+                    if (progress > 1) progress = 1;
+
+                    // グラスの形状を考慮した、その高さにおける左右の有効幅（透明ではない範囲）
+                    // 上部はグラスの幅100%、底に近づくにつれて実体幅が約60%にすぼまると仮定
+                    let scaleFactor = 1.0 - (progress * 0.4); 
+                    let allowedWidth = glassRect.width * scaleFactor;
+                    
+                    // その高さでのグラスの中心から見た、配置可能な左端と右端
+                    let glassCenter = glassLeft + (glassRect.width / 2);
+                    let minLeft = glassCenter - (allowedWidth / 2);
+                    let maxLeft = glassCenter + (allowedWidth / 2) - itemRect.width;
+                    let maxTop = glassTop + glassRect.height - itemRect.height;
+
+                    // 左右のはみ出しをチェックして押し戻す（透明背景のところへ行かせない）
+                    if (currentLeft < minLeft) item.style.left = minLeft + 'px';
+                    if (currentLeft > maxLeft) item.style.left = maxLeft + 'px';
+
+                    // 下側のはみ出しをチェックしてグラスの底で止める
+                    if (currentTop > maxTop) item.style.top = maxTop + 'px';
+                }
+
+                // マウス移動時とマウスを離した時に位置を瞬時に補正する
+                document.addEventListener('mousemove', limitMovement);
+                document.addEventListener('mouseup', function() {
+                    limitMovement();
+                    document.removeEventListener('mousemove', limitMovement);
+                }, { once: true });
+            });
+        });
+    }, 500); // 0.5秒ごとに新しいトッピングがないかチェックして自動適用
+});
+</script>
+
+</body>
+</html>
