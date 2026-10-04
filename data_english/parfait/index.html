@@ -505,17 +505,18 @@
 
         function generateQR() {}
 
-                function copyShareLink() {
+        function copyShareLink() {
             const editor = document.getElementById('dialogueText');
             const textContent = editor ? (editor.innerText || editor.textContent) : '';
             
-            // 🔴【追加】現在の文字の色とサイズを取得する
+            // 🔴 現在の文字の色とサイズ（CSSスタイル）を正確に取得
             const currentColor = editor ? editor.style.color : '';
             const currentFontSize = editor ? editor.style.fontSize : '';
             
+            // ⚠️ 元のコードと全く同じ方法でベースURLを切り出します（デザイン崩れを防止）
             const baseUrl = window.location.href.split('?')[0];
             
-            // 🔴【変更】URLに色（color）とサイズ（size）の情報も一緒に詰め込む
+            // 🔴 URLの末尾に、色とサイズの情報も安全にくっつけます
             const shareUrl = `${baseUrl}?text=${encodeURIComponent(textContent)}&color=${encodeURIComponent(currentColor)}&size=${encodeURIComponent(currentFontSize)}`;
             
             navigator.clipboard.writeText(shareUrl).then(() => {
@@ -531,7 +532,7 @@
             });
         }
 
-        // 🔴【追加】URLを開いたときに、保存された色とサイズを自動で復元する処理
+        // 🔴 URLから開いたときに、色とサイズを上書きして元に戻す処理
         function restoreStylesFromUrl() {
             const urlParams = new URLSearchParams(window.location.search);
             const color = urlParams.get('color');
@@ -539,19 +540,15 @@
             const editor = document.getElementById('dialogueText');
             
             if (editor) {
-                // URLに色情報があれば適用、なければデフォルト（元々の色）にする
                 if (color) editor.style.color = color;
-                // URLにサイズ情報があれば適用
                 if (size) editor.style.fontSize = size;
             }
         }
 
-        // 🔴【追加】画面が読み込まれた時にスタイル復元を実行する
-        window.addEventListener('DOMContentLoaded', () => {
-            // 元々の読み込み処理（checkIncomingQRData）を動かした後に実行
-            setTimeout(restoreStylesFromUrl, 100); 
+        // 🔴 既存の処理（checkIncomingQRData）の邪魔をしないように実行
+        window.addEventListener('load', () => {
+            restoreStylesFromUrl();
         });
-
 
         function checkIncomingQRData() {
             const urlParams = new URLSearchParams(window.location.search);
