@@ -188,7 +188,7 @@
             height: 100%;
             background-image: url('./background.png');
             background-repeat: repeat;
-            background-size: 250px 250px; /* お好みに合わせて調整してください */
+            background-size: 250px 250px;
             z-index: 0;
             pointer-events: none;
         }
@@ -234,7 +234,7 @@
             position: relative;
             z-index: 10; /* トッピングより手前に表示[cite: 4] */
             opacity: 0.6; /* 60%に透過[cite: 4] */
-            pointer-events: none; /* グラス自体はクリックを透過させる */
+            pointer-events: none;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -245,7 +245,7 @@
             flex-shrink: 0;
         }
 
-        /* トッピングはグラスの奥（低めの z-index）に配置[cite: 4] */
+        /* トッピングはグラスの奥に配置[cite: 4] */
         .placed-topping {
             position: absolute;
             width: 70px;
@@ -253,7 +253,7 @@
             object-fit: contain;
             cursor: move;
             transform: translate(-50%, -50%);
-            z-index: 3; /* グラス(10)より低くして中に入っているように見せる[cite: 4] */
+            z-index: 3; /* グラス(10)より低くする[cite: 4] */
             pointer-events: auto;
             -webkit-user-drag: none;
             box-sizing: border-box;
@@ -480,12 +480,12 @@
             if (editor) {
                 editor.innerHTML = 
                     '<div><font color="#43a047" size="5">  AB: Hello</font><br><font color="#888888" size="3">　　ハロー</font></div>' +
-                    '<div style="margin-top: 4px;"><font color="#e53935" size="5">  A: What do you like?</font><br><font color="#888888" size="3">　　ホワッ(ト)　ドゥー　ユー　ライク？</font></div>' +
-                    '<div style="margin-top: 4px;"><font color="#1e88e5" size="5">  B: I like _______ and _______.</font><br><font color="#888888" size="3">　　アイ　ライク＿＿＿＿＿アンド＿＿＿＿＿。</font></div>' +
-                    '<div style="margin-top: 4px;"><font color="#e53935" size="5">  A: How many?</font><br><font color="#888888" size="3">　　ハウ　メニー？</font></div>' +
-                    '<div style="margin-top: 4px;"><font color="#1e88e5" size="5">  B:<U> 3 </U>please.</font><br><font color="#888888" size="3">　<U>　スリー　</U>プリーズ</font></div>' +
+                    '<div style="margin-top: 4px;"><font color="#e53935" size="5">  A: What do you like?</font><br><font color="#888888" size="3">　　ホワッ(ト) ドゥー ユー ライク？</font></div>' +
+                    '<div style="margin-top: 4px;"><BR><font color="#1e88e5" size="5">  B: I like _______ and _______.</font><br><font color="#888888" size="3">　　アイ ライク＿＿＿＿＿アンド＿＿＿＿＿。</font></div>' +
+                    '<div style="margin-top: 4px;"><font color="#e53935" size="5">  A: How many?</font><br><font color="#888888" size="3">　　ハウ メニー？</font></div>' +
+                    '<div style="margin-top: 4px;"><font color="#1e88e5" size="5">  B:<U> 3 <?U>please.</font><br><font color="#888888" size="3">　<U>　スリー </U>プリーズ</font></div>' +
                     '<div style="margin-top: 4px;"><font color="#1e88e5" size="5">   Thank you.</font><br><font color="#888888" size="3">　　サンキュー</font></div>' +
-                    '<div style="margin-top: 4px;"><font color="#43a047" size="5">  AB：Bye</font><br><font color="#888888" size="3"> 　　バイ</font></div>';
+                    '<div style="margin-top: 4px;"><BR><font color="#43a047" size="5">  AB：Bye</font><br><font color="#888888" size="3">　　バイ</font></div>';
             }
 
             checkIncomingQRData();
@@ -499,9 +499,10 @@
 
         function copyShareLink() {
             const editor = document.getElementById('dialogueText');
-            const textContent = editor ? (editor.innerText || editor.textContent) : '';
+            // innerHTMLを取得することで、フォントの色やサイズ（HTMLタグ）を保持したままURLに含める
+            const htmlContent = editor ? editor.innerHTML : '';
             const baseUrl = window.location.href.split('?')[0];
-            const shareUrl = `${baseUrl}?text=${encodeURIComponent(textContent)}`;
+            const shareUrl = `${baseUrl}?text=${encodeURIComponent(htmlContent)}`;
             
             navigator.clipboard.writeText(shareUrl).then(() => {
                 alert("リンクのコピーをしました！");
@@ -521,7 +522,10 @@
             const textData = urlParams.get('text');
             if (textData) {
                 const editor = document.getElementById('dialogueText');
-                if (editor) editor.innerText = decodeURIComponent(textData);
+                if (editor) {
+                    // 読み込む際もinnerHTMLとして復元し、書式を維持する
+                    editor.innerHTML = decodeURIComponent(textData);
+                }
                 window.history.replaceState({}, document.title, window.location.href.split('?')[0]);
             }
         }
@@ -673,7 +677,6 @@
             bgImg.src = assets.bg;
 
             bgImg.onload = function() {
-                // 背景画像をタイル状（パターン）に敷き詰める
                 const pattern = ctx.createPattern(bgImg, 'repeat');
                 ctx.fillStyle = pattern;
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -696,7 +699,6 @@
                     const glassY = canvas.height - glassSize - 10;
 
                     const drawEverythingAndFinish = () => {
-                        // 保存時もグラスを半透明(60%)にし、トッピングの上に重ねて描画する[cite: 4]
                         ctx.save();
                         ctx.globalAlpha = 0.6;
                         ctx.drawImage(glassImg, glassX, glassY, glassSize, glassSize);
