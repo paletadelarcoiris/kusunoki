@@ -505,18 +505,18 @@
 
         function generateQR() {}
 
-        function copyShareLink() {
+                function copyShareLink() {
             const editor = document.getElementById('dialogueText');
             const textContent = editor ? (editor.innerText || editor.textContent) : '';
             
-            // 🔴 現在の文字の色とサイズ（CSSスタイル）を正確に取得
+            // 🔴 現在の文字の色とサイズを安全に取得
             const currentColor = editor ? editor.style.color : '';
             const currentFontSize = editor ? editor.style.fontSize : '';
             
-            // ⚠️ 元のコードと全く同じ方法でベースURLを切り出します（デザイン崩れを防止）
+            // ⚠️【ここを完全に元通りに修正】末尾の [0] を戻してデザイン崩れを完全に防ぎます
             const baseUrl = window.location.href.split('?')[0];
             
-            // 🔴 URLの末尾に、色とサイズの情報も安全にくっつけます
+            // 🔴 正しいURLの後ろに色とサイズのデータをくっつけます
             const shareUrl = `${baseUrl}?text=${encodeURIComponent(textContent)}&color=${encodeURIComponent(currentColor)}&size=${encodeURIComponent(currentFontSize)}`;
             
             navigator.clipboard.writeText(shareUrl).then(() => {
@@ -532,7 +532,7 @@
             });
         }
 
-        // 🔴 URLから開いたときに、色とサイズを上書きして元に戻す処理
+        // 🔴 URLから開いたときに、色とサイズを自動で元の書式に戻す処理
         function restoreStylesFromUrl() {
             const urlParams = new URLSearchParams(window.location.search);
             const color = urlParams.get('color');
@@ -545,7 +545,7 @@
             }
         }
 
-        // 🔴 既存の処理（checkIncomingQRData）の邪魔をしないように実行
+        // 🔴 画面が完全に読み込まれたあとに安全に書式を復元
         window.addEventListener('load', () => {
             restoreStylesFromUrl();
         });
