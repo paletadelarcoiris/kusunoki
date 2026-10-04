@@ -63,11 +63,11 @@
             display: flex;
             flex-direction: column;
             gap: 6px;
-            width: 220px;
+            width: 240px;
             flex-shrink: 0;
         }
 
-        /* トッピング一覧ボックス */
+        /* トッピング一覧ボックス（スクロール対応） */
         .topping-box {
             background: #fff;
             border: 2px dashed #ccc;
@@ -78,8 +78,9 @@
             gap: 6px;
             align-content: start;
             box-sizing: border-box;
-            overflow: hidden;
-            flex-shrink: 0;
+            overflow-y: auto;
+            flex: 1;
+            min-height: 0;
         }
 
         .topping-item {
@@ -94,18 +95,21 @@
         }
 
         .topping-item img {
-            width: 56px;
-            height: 56px;
+            width: 50px;
+            height: 50px;
             object-fit: contain;
             pointer-events: none;
             -webkit-user-drag: none;
         }
 
         .topping-name {
-            font-size: 11px;
+            font-size: 10px;
             color: #5d4037;
             font-weight: bold;
             margin-top: 1px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         /* 下部アイコン6個エリア */
@@ -119,7 +123,7 @@
             gap: 6px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
             box-sizing: border-box;
-            flex: 1;
+            flex-shrink: 0;
             align-content: center;
         }
 
@@ -388,35 +392,43 @@
         <!-- 左側パネル（トッピング一覧 ＆ 下部アイコン6個） -->
         <div class="left-panel">
             <div class="topping-box" id="toppingBox">
+                <!-- Strawberry & Banana -->
                 <div class="topping-item" onmousedown="initCreateFromHTML(event, './strawberry.png', false)" ontouchstart="initCreateFromHTML(event, './strawberry.png', true)">
                     <img src="./strawberry.png" alt="Strawberry" draggable="false"><div class="topping-name">Strawberry</div>
                 </div>
                 <div class="topping-item" onmousedown="initCreateFromHTML(event, './banana.png', false)" ontouchstart="initCreateFromHTML(event, './banana.png', true)">
                     <img src="./banana.png" alt="Banana" draggable="false"><div class="topping-name">Banana</div>
                 </div>
-                <div class="topping-item" onmousedown="initCreateFromHTML(event, './ice_cream.png', false)" ontouchstart="initCreateFromHTML(event, './ice_cream.png', true)">
-                    <img src="./ice_cream.png" alt="Ice Cream" draggable="false"><div class="topping-name">Ice Cream</div>
+                <!-- 追加リクエストのトッピング群 -->
+                <div class="topping-item" onmousedown="initCreateFromHTML(event, './orange.png', false)" ontouchstart="initCreateFromHTML(event, './orange.png', true)">
+                    <img src="./orange.png" alt="Orange" draggable="false"><div class="topping-name">Orange</div>
                 </div>
-                <div class="topping-item" onmousedown="initCreateFromHTML(event, './whipped_cream.png', false)" ontouchstart="initCreateFromHTML(event, './whipped_cream.png', true)">
-                    <img src="./whipped_cream.png" alt="Cream" draggable="false"><div class="topping-name">Cream</div>
+                <div class="topping-item" onmousedown="initCreateFromHTML(event, './apple.png', false)" ontouchstart="initCreateFromHTML(event, './apple.png', true)">
+                    <img src="./apple.png" alt="Apple" draggable="false"><div class="topping-name">Apple</div>
+                </div>
+                <div class="topping-item" onmousedown="initCreateFromHTML(event, './melon.png', false)" ontouchstart="initCreateFromHTML(event, './melon.png', true)">
+                    <img src="./melon.png" alt="Melon" draggable="false"><div class="topping-name">Melon</div>
+                </div>
+                <div class="topping-item" onmousedown="initCreateFromHTML(event, './watermelon.png', false)" ontouchstart="initCreateFromHTML(event, './watermelon.png', true)">
+                    <img src="./watermelon.png" alt="Watermelon" draggable="false"><div class="topping-name">Watermelon</div>
+                </div>
+                <div class="topping-item" onmousedown="initCreateFromHTML(event, './pineapple.png', false)" ontouchstart="initCreateFromHTML(event, './pineapple.png', true)">
+                    <img src="./pineapple.png" alt="Pineapple" draggable="false"><div class="topping-name">Pineapple</div>
+                </div>
+                <div class="topping-item" onmousedown="initCreateFromHTML(event, './grape.png', false)" ontouchstart="initCreateFromHTML(event, './grape.png', true)">
+                    <img src="./grape.png" alt="Grape" draggable="false"><div class="topping-name">Grape</div>
                 </div>
                 <div class="topping-item" onmousedown="initCreateFromHTML(event, './cherry.png', false)" ontouchstart="initCreateFromHTML(event, './cherry.png', true)">
                     <img src="./cherry.png" alt="Cherry" draggable="false"><div class="topping-name">Cherry</div>
                 </div>
-                <div class="topping-item" onmousedown="initCreateFromHTML(event, './chocolate.png', false)" ontouchstart="initCreateFromHTML(event, './chocolate.png', true)">
-                    <img src="./chocolate.png" alt="Chocolate" draggable="false"><div class="topping-name">Chocolate</div>
+                <div class="topping-item" onmousedown="initCreateFromHTML(event, './kiwi.png', false)" ontouchstart="initCreateFromHTML(event, './kiwi.png', true)">
+                    <img src="./kiwi.png" alt="Kiwi" draggable="false"><div class="topping-name">Kiwi fruit</div>
                 </div>
-                <div class="topping-item" onmousedown="initCreateFromHTML(event, './cookie.png', false)" ontouchstart="initCreateFromHTML(event, './cookie.png', true)">
-                    <img src="./cookie.png" alt="Cookie" draggable="false"><div class="topping-name">Cookie</div>
+                <div class="topping-item" onmousedown="initCreateFromHTML(event, './icecream.png', false)" ontouchstart="initCreateFromHTML(event, './icecream.png', true)">
+                    <img src="./icecream.png" alt="Ice Cream" draggable="false"><div class="topping-name">Ice Cream</div>
                 </div>
-                <div class="topping-item" onmousedown="initCreateFromHTML(event, './mint.png', false)" ontouchstart="initCreateFromHTML(event, './mint.png', true)">
-                    <img src="./mint.png" alt="Mint" draggable="false"><div class="topping-name">Mint</div>
-                </div>
-                <div class="topping-item" onmousedown="initCreateFromHTML(event, './blueberry.png', false)" ontouchstart="initCreateFromHTML(event, './blueberry.png', true)">
-                    <img src="./blueberry.png" alt="Blueberry" draggable="false"><div class="topping-name">Blueberry</div>
-                </div>
-                <div class="topping-item" onmousedown="initCreateFromHTML(event, './wafer.png', false)" ontouchstart="initCreateFromHTML(event, './wafer.png', true)">
-                    <img src="./wafer.png" alt="Wafer" draggable="false"><div class="topping-name">Wafer</div>
+                <div class="topping-item" onmousedown="initCreateFromHTML(event, './whipped_cream.png', false)" ontouchstart="initCreateFromHTML(event, './whipped_cream.png', true)">
+                    <img src="./whipped_cream.png" alt="Whipped Cream" draggable="false"><div class="topping-name">Whipped Cream</div>
                 </div>
             </div>
 
@@ -479,13 +491,13 @@
             const editor = document.getElementById('dialogueText');
             if (editor) {
                 editor.innerHTML = 
-                    '<div><font color="#43a047" size="5">  AB: Hello</font><br><font color="#888888" size="3">  ハロー</font></div>' +
-                    '<div style="margin-top: 4px;"><font color="#e53935" size="5">  A: &nbsp; What do you like?</font><br><font color="#888888" size="3">  ホワッ(ト) ドゥー ユー ライク？</font></div>' +
-                    '<div style="margin-top: 4px;"><font color="#1e88e5" size="5">  B: I like _______ and _______.</font><br><font color="#888888" size="3">  アイ ライク＿＿＿＿＿アンド＿＿＿＿＿。</font></div>' +
-                    '<div style="margin-top: 4px;"><font color="#e53935" size="5">  A: How many?</font><br><font color="#888888" size="3">  ハウ メニー？</font></div>' +
-                    '<div style="margin-top: 4px;"><font color="#1e88e5" size="5">  B: 3 please.</font><br><font color="#888888" size="3">  スリー プリーズ</font></div>' +
-                    '<div style="margin-top: 4px;"><font color="#1e88e5" size="5">   Thank you.</font><br><font color="#888888" size="3">  サンキュー</font></div>' +
-                    '<div style="margin-top: 4px;"><font color="#43a047" size="5">  AB：Bye</font><br><font color="#888888" size="3">   バイ</font></div>';
+                    '<div><font color="#43a047" size="5">  AB: Hello</font><br><font color="#888888" size="3">　　　ハロー</font></div>' +
+                    '<div style="margin-top: 4px;"><font color="#e53935" size="5"><BR>  A: What do you like?</font><br><font color="#888888" size="3">　　ホワッ(ト) ドゥー　ユー　ライク？</font></div>' +
+                    '<div style="margin-top: 4px;"><font color="#1e88e5" size="5">  B: I like _______ and _______.</font><br><font color="#888888" size="3">　　アイ　ライク＿＿＿＿＿アンド＿＿＿＿＿。</font></div>' +
+                    '<div style="margin-top: 4px;"><font color="#e53935" size="5"><BR>  A: How many?</font><br><font color="#888888" size="3">　　ハウ　メニー？</font></div>' +
+                    '<div style="margin-top: 4px;"><font color="#1e88e5" size="5">  B: <U>3</U> please.</font><br><font color="#888888" size="3">　<U>　スリー　</U>プリーズ</font></div>' +
+                    '<div style="margin-top: 4px;"><font color="#1e88e5" size="5">   Thank you.</font><br><font color="#888888" size="3">　　サンキュー</font></div>' +
+                    '<div style="margin-top: 4px;"><font color="#43a047" size="5"><BR>  AB：Bye</font><br><font color="#888888" size="3">　　　バイ</font></div>';
             }
 
             checkIncomingQRData();
@@ -499,7 +511,6 @@
 
         function copyShareLink() {
             const editor = document.getElementById('dialogueText');
-            // innerHTMLを取得することで、フォントの色やサイズ（HTMLタグ）を保持したままURLに含める
             const htmlContent = editor ? editor.innerHTML : '';
             const baseUrl = window.location.href.split('?')[0];
             const shareUrl = `${baseUrl}?text=${encodeURIComponent(htmlContent)}`;
@@ -523,7 +534,6 @@
             if (textData) {
                 const editor = document.getElementById('dialogueText');
                 if (editor) {
-                    // 読み込む際もinnerHTMLとして復元し、書式を維持する
                     editor.innerHTML = decodeURIComponent(textData);
                 }
                 window.history.replaceState({}, document.title, window.location.href.split('?')[0]);
