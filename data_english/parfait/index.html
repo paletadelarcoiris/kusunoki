@@ -178,7 +178,7 @@
             touch-action: none;
         }
 
-        /* 背景のほんわかしたランダム水玉 */
+        /* background.png を背景に使用 */
         .parfait-canvas::before {
             content: "";
             position: absolute;
@@ -186,18 +186,9 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-image: 
-                radial-gradient(circle, rgba(239, 83, 80, 0.3) 24px, transparent 26px),
-                radial-gradient(circle, rgba(255, 167, 38, 0.3) 18px, transparent 20px),
-                radial-gradient(circle, rgba(255, 238, 88, 0.3) 32px, transparent 34px),
-                radial-gradient(circle, rgba(102, 187, 106, 0.3) 22px, transparent 24px),
-                radial-gradient(circle, rgba(41, 182, 246, 0.3) 30px, transparent 32px),
-                radial-gradient(circle, rgba(126, 87, 194, 0.3) 20px, transparent 22px),
-                radial-gradient(circle, rgba(236, 64, 122, 0.3) 28px, transparent 30px);
-            background-size: 380px 420px, 290px 340px, 430px 460px, 330px 370px, 400px 450px, 300px 330px, 360px 410px;
-            background-position: 15px 55px, 135px 245px, 215px 45px, 55px 345px, 435px 115px, 335px 365px, 255px 195px;
-            filter: blur(1.5px);
-            -webkit-filter: blur(1.5px);
+            background-image: url('./background.png');
+            background-repeat: repeat;
+            background-size: 250px 250px; /* お好みに合わせて調整してください */
             z-index: 0;
             pointer-events: none;
         }
@@ -236,13 +227,14 @@
             color: #333;
         }
 
-        /* グラス（常に最前面に配置するため z-index を高く設定）[cite: 2] */
+        /* グラス（60%透過 ＆ 常に最前面）[cite: 4] */
         .parfait-glass {
             width: 580px;
             height: 580px;
             position: relative;
-            z-index: 10; /* トッピングよりも手前に表示[cite: 2] */
-            pointer-events: none; /* グラス自体はクリックを透過させ、中のトッピングを操作可能にする */
+            z-index: 10; /* トッピングより手前に表示[cite: 4] */
+            opacity: 0.6; /* 60%に透過[cite: 4] */
+            pointer-events: none; /* グラス自体はクリックを透過させる */
             display: flex;
             align-items: center;
             justify-content: center;
@@ -253,7 +245,7 @@
             flex-shrink: 0;
         }
 
-        /* トッピングはグラスの奥（低めの z-index）に配置[cite: 2] */
+        /* トッピングはグラスの奥（低めの z-index）に配置[cite: 4] */
         .placed-topping {
             position: absolute;
             width: 70px;
@@ -261,7 +253,7 @@
             object-fit: contain;
             cursor: move;
             transform: translate(-50%, -50%);
-            z-index: 3; /* グラス(10)より低くすることで中に入っているように見せる[cite: 2] */
+            z-index: 3; /* グラス(10)より低くして中に入っているように見せる[cite: 4] */
             pointer-events: auto;
             -webkit-user-drag: none;
             box-sizing: border-box;
@@ -402,8 +394,8 @@
                 <div class="topping-item" onmousedown="initCreateFromHTML(event, './banana.png', false)" ontouchstart="initCreateFromHTML(event, './banana.png', true)">
                     <img src="./banana.png" alt="Banana" draggable="false"><div class="topping-name">Banana</div>
                 </div>
-                <div class="topping-item" onmousedown="initCreateFromHTML(event, './ice_cream.png', false)" ontouchstart="initCreateFromHTML(event, './icecream.png', true)">
-                    <img src="./icecream.png" alt="Ice Cream" draggable="false"><div class="topping-name">Ice Cream</div>
+                <div class="topping-item" onmousedown="initCreateFromHTML(event, './ice_cream.png', false)" ontouchstart="initCreateFromHTML(event, './ice_cream.png', true)">
+                    <img src="./ice_cream.png" alt="Ice Cream" draggable="false"><div class="topping-name">Ice Cream</div>
                 </div>
                 <div class="topping-item" onmousedown="initCreateFromHTML(event, './whipped_cream.png', false)" ontouchstart="initCreateFromHTML(event, './whipped_cream.png', true)">
                     <img src="./whipped_cream.png" alt="Cream" draggable="false"><div class="topping-name">Cream</div>
@@ -477,7 +469,7 @@
     </div>
 
     <script>
-        const assets = { glass: './glass.png' };
+        const assets = { glass: './glass.png', bg: './background.png' };
         let selectedTopping = null;
 
         window.addEventListener('DOMContentLoaded', () => {
@@ -487,13 +479,13 @@
             const editor = document.getElementById('dialogueText');
             if (editor) {
                 editor.innerHTML = 
-                    '<div><font color="#43a047" size="5">  AB: Hello</font><br><font color="#888888" size="3">  ハロー</font></div>' +
-                    '<div style="margin-top: 4px;"><font color="#e53935" size="5">  A: &nbsp; What do you like?</font><br><font color="#888888" size="3">  ホワッ(ト) ドゥー ユー ライク？</font></div>' +
-                    '<div style="margin-top: 4px;"><font color="#1e88e5" size="5">  B: I like _______ and _______.</font><br><font color="#888888" size="3">  アイ ライク＿＿＿＿＿アンド＿＿＿＿＿。</font></div>' +
-                    '<div style="margin-top: 4px;"><font color="#e53935" size="5">  A: How many?</font><br><font color="#888888" size="3">  ハウ メニー？</font></div>' +
-                    '<div style="margin-top: 4px;"><font color="#1e88e5" size="5">  B:<U> 3 </U> please.</font><br><font color="#888888" size="3"><U>  スリー </U>プリーズ</font></div>' +
-                    '<div style="margin-top: 4px;"><font color="#1e88e5" size="5">   Thank you.</font><br><font color="#888888" size="3">  サンキュー</font></div>' +
-                    '<div style="margin-top: 4px;"><font color="#43a047" size="5">  AB：Bye</font><br><font color="#888888" size="3">   バイ</font></div>';
+                    '<div><font color="#43a047" size="5">  AB: Hello</font><br><font color="#888888" size="3">　　ハロー</font></div>' +
+                    '<div style="margin-top: 4px;"><font color="#e53935" size="5">  A: What do you like?</font><br><font color="#888888" size="3">　　ホワッ(ト)　ドゥー　ユー　ライク？</font></div>' +
+                    '<div style="margin-top: 4px;"><font color="#1e88e5" size="5">  B: I like _______ and _______.</font><br><font color="#888888" size="3">　　アイ　ライク＿＿＿＿＿アンド＿＿＿＿＿。</font></div>' +
+                    '<div style="margin-top: 4px;"><font color="#e53935" size="5">  A: How many?</font><br><font color="#888888" size="3">　　ハウ　メニー？</font></div>' +
+                    '<div style="margin-top: 4px;"><font color="#1e88e5" size="5">  B:<U> 3 </U>please.</font><br><font color="#888888" size="3">　<U>　スリー　</U>プリーズ</font></div>' +
+                    '<div style="margin-top: 4px;"><font color="#1e88e5" size="5">   Thank you.</font><br><font color="#888888" size="3">　　サンキュー</font></div>' +
+                    '<div style="margin-top: 4px;"><font color="#43a047" size="5">  AB：Bye</font><br><font color="#888888" size="3"> 　　バイ</font></div>';
             }
 
             checkIncomingQRData();
@@ -508,8 +500,6 @@
         function copyShareLink() {
             const editor = document.getElementById('dialogueText');
             const textContent = editor ? (editor.innerText || editor.textContent) : '';
-            
-            // ⚠️ 元のURL作成処理を1文字も変えずに完全復元します（これで確実にデザインが直ります）
             const baseUrl = window.location.href.split('?')[0];
             const shareUrl = `${baseUrl}?text=${encodeURIComponent(textContent)}`;
             
@@ -679,107 +669,89 @@
             ctx.fillStyle = '#ffffff'; 
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // 保存画像用：ランダムな虹色の水玉を描画
-            drawRainbowBubbles(ctx, canvas.width, canvas.height);
+            const bgImg = new Image();
+            bgImg.src = assets.bg;
 
-            ctx.fillStyle = '#333333'; 
-            ctx.font = 'bold 24px Arial'; 
-            ctx.textAlign = 'center'; 
-            ctx.textBaseline = 'top';
-            ctx.fillText(titleText, canvas.width / 2, 12);
+            bgImg.onload = function() {
+                // 背景画像をタイル状（パターン）に敷き詰める
+                const pattern = ctx.createPattern(bgImg, 'repeat');
+                ctx.fillStyle = pattern;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            const toppings = document.querySelectorAll('.placed-topping');
-            let loadedCount = 0;
+                ctx.fillStyle = '#333333'; 
+                ctx.font = 'bold 24px Arial'; 
+                ctx.textAlign = 'center'; 
+                ctx.textBaseline = 'top';
+                ctx.fillText(titleText, canvas.width / 2, 12);
 
-            const glassImg = new Image();
-            glassImg.src = assets.glass;
+                const toppings = document.querySelectorAll('.placed-topping');
+                let loadedCount = 0;
 
-            // 保存時も「トッピングを先に描き、後からグラスを上描き」する順序に変更
-            glassImg.onload = function() {
-                const glassSize = 580;
-                const glassX = (canvas.width - glassSize) / 2;
-                const glassY = canvas.height - glassSize - 10;
+                const glassImg = new Image();
+                glassImg.src = assets.glass;
 
-                const drawGlassAndFinish = () => {
-                    // トッピングの上にグラスを重ねて描画する
-                    ctx.drawImage(glassImg, glassX, glassY, glassSize, glassSize);
-                    triggerDownload(canvas, fileName);
-                    if (selectedTopping) selectedTopping.classList.add('selected');
-                };
+                glassImg.onload = function() {
+                    const glassSize = 580;
+                    const glassX = (canvas.width - glassSize) / 2;
+                    const glassY = canvas.height - glassSize - 10;
 
-                if (toppings.length === 0) {
-                    drawGlassAndFinish();
-                    return;
-                }
-
-                toppings.forEach(topping => {
-                    const img = new Image();
-                    img.src = topping.src;
-                    const x = parseFloat(topping.style.left);
-                    const canvasBox = document.getElementById('parfaitCanvas').getBoundingClientRect();
-                    
-                    const relX = x;
-                    const relY = parseFloat(topping.style.top);
-                    
-                    const scale = parseFloat(topping.dataset.scale || 1.5);
-                    const rotate = parseInt(topping.dataset.rotate || 0);
-
-                    img.onload = function() {
+                    const drawEverythingAndFinish = () => {
+                        // 保存時もグラスを半透明(60%)にし、トッピングの上に重ねて描画する[cite: 4]
                         ctx.save();
-                        const scaleRatio = canvas.width / canvasBox.width;
-                        ctx.translate(relX * scaleRatio, relY * scaleRatio);
-                        ctx.rotate((rotate * Math.PI) / 180);
-                        const size = 70 * scale * scaleRatio;
-                        ctx.drawImage(img, -size / 2, -size / 2, size, size);
+                        ctx.globalAlpha = 0.6;
+                        ctx.drawImage(glassImg, glassX, glassY, glassSize, glassSize);
                         ctx.restore();
+
+                        triggerDownload(canvas, fileName);
+                        if (selectedTopping) selectedTopping.classList.add('selected');
+                    };
+
+                    if (toppings.length === 0) {
+                        drawEverythingAndFinish();
+                        return;
+                    }
+
+                    toppings.forEach(topping => {
+                        const img = new Image();
+                        img.src = topping.src;
+                        const x = parseFloat(topping.style.left);
+                        const canvasBox = document.getElementById('parfaitCanvas').getBoundingClientRect();
                         
-                        loadedCount++; 
-                        if (loadedCount === toppings.length) { 
-                            drawGlassAndFinish();
-                        }
-                    };
-                    img.onerror = function() {
-                        loadedCount++;
-                        if (loadedCount === toppings.length) {
-                            drawGlassAndFinish();
-                        }
-                    };
-                });
-            };
-            glassImg.onerror = function() {
-                alert("glass.pngの読み込みに失敗しました。");
-            };
-        }
+                        const relX = x;
+                        const relY = parseFloat(topping.style.top);
+                        
+                        const scale = parseFloat(topping.dataset.scale || 1.5);
+                        const rotate = parseInt(topping.dataset.rotate || 0);
 
-        function drawRainbowBubbles(ctx, width, height) {
-            const bubbles = [
-                {x: 60, y: 90, r: 24, color: 'rgba(239, 83, 80, 0.3)'},
-                {x: 140, y: 220, r: 18, color: 'rgba(255, 167, 38, 0.3)'},
-                {x: 220, y: 80, r: 32, color: 'rgba(255, 238, 88, 0.3)'},
-                {x: 300, y: 180, r: 22, color: 'rgba(102, 187, 106, 0.3)'},
-                {x: 90, y: 380, r: 30, color: 'rgba(41, 182, 246, 0.3)'},
-                {x: 190, y: 480, r: 20, color: 'rgba(126, 87, 194, 0.3)'},
-                {x: 270, y: 340, r: 28, color: 'rgba(236, 64, 122, 0.3)'},
-                {x: 370, y: 80, r: 24, color: 'rgba(239, 83, 80, 0.3)'},
-                {x: 440, y: 200, r: 32, color: 'rgba(255, 167, 38, 0.3)'},
-                {x: 520, y: 100, r: 18, color: 'rgba(255, 238, 88, 0.3)'},
-                {x: 600, y: 190, r: 26, color: 'rgba(102, 187, 106, 0.3)'},
-                {x: 400, y: 380, r: 22, color: 'rgba(41, 182, 246, 0.3)'},
-                {x: 480, y: 460, r: 30, color: 'rgba(126, 87, 194, 0.3)'},
-                {x: 570, y: 350, r: 20, color: 'rgba(236, 64, 122, 0.3)'},
-                {x: 80, y: 580, r: 28, color: 'rgba(239, 83, 80, 0.3)'},
-                {x: 200, y: 600, r: 22, color: 'rgba(255, 167, 38, 0.3)'},
-                {x: 340, y: 580, r: 26, color: 'rgba(102, 187, 106, 0.3)'},
-                {x: 470, y: 590, r: 32, color: 'rgba(41, 182, 246, 0.3)'},
-                {x: 590, y: 540, r: 18, color: 'rgba(126, 87, 194, 0.3)'}
-            ];
-
-            bubbles.forEach(b => {
-                ctx.beginPath();
-                ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
-                ctx.fillStyle = b.color;
-                ctx.fill();
-            });
+                        img.onload = function() {
+                            ctx.save();
+                            const scaleRatio = canvas.width / canvasBox.width;
+                            ctx.translate(relX * scaleRatio, relY * scaleRatio);
+                            ctx.rotate((rotate * Math.PI) / 180);
+                            const size = 70 * scale * scaleRatio;
+                            ctx.drawImage(img, -size / 2, -size / 2, size, size);
+                            ctx.restore();
+                            
+                            loadedCount++; 
+                            if (loadedCount === toppings.length) { 
+                                drawEverythingAndFinish();
+                            }
+                        };
+                        img.onerror = function() {
+                            loadedCount++;
+                            if (loadedCount === toppings.length) {
+                                drawEverythingAndFinish();
+                            }
+                        };
+                    });
+                };
+                glassImg.onerror = function() {
+                    alert("glass.pngの読み込みに失敗しました。");
+                };
+            };
+            bgImg.onerror = function() {
+                alert("background.pngの読み込みに失敗しました。");
+            };
         }
 
         function triggerDownload(canvas, filename) {
@@ -791,41 +763,9 @@
                 link.click(); 
                 document.body.removeChild(link);
             } catch (e) {
-                alert("保存される画像ファイルの作成に失敗しました。");
+                alert("保存に失敗しました。");
             }
         }
     </script>
-<style>
-    /* パターンA: もしimgタグでglass.pngが表示されている場合 */
-    img[src*="glass.png"], 
-    img[id*="glass"], 
-    img[class*="glass"] {
-        opacity: 0.6 !important; /* 👈 ここでお好みの濃さ（0.95〜0.98など）に調整してください */
-    }
-
-    /* パターンB: もし背景画像（CSS）としてglass.pngが表示されている場合 */
-    [style*="glass.png"],
-    .glass,
-    #glass {
-        opacity: 0.6 !important; /* 👈 ここも同じ数値にします */
-    }
-</style>
-
-<style>
-    /* トッピング（レイヤーアイテム）のデザインを強制固定する */
-    .layer-item {
-        /* 文字の大きさを最優先で固定（お好みのサイズに変えても大丈夫です） */
-        font-size: 50px !important; 
-        
-        /* 絵文字本来の色をキープし、勝手に黒文字（フォントカラー）になるのを防ぐ */
-        color: transparent !important;
-        text-shadow: 0 0 0 #4a148c; /* 元の文字色（紫など）を指定している場合 */
-        
-        /* カラー絵文字（Apple Color Emojiなど）をそのまま表示させる設定 */
-        font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif !important;
-    }
-</style>
-
-
 </body>
 </html>
