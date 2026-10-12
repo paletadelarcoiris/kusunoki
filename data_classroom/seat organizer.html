@@ -2,27 +2,61 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>席替え自動作成アプリ</title>
+    <title>☆席替えくん☆</title>
     <style>
         body { font-family: sans-serif; background: #f8fafc; margin: 0; padding: 20px; color: #334155; }
         .container { max-width: 1000px; margin: 0 auto; background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
-        h1 { font-size: 1.5rem; text-align: center; margin-bottom: 20px; color: #0f172a; }
+        
+        h1 { 
+            font-size: 2rem; 
+            text-align: center; 
+            margin: -25px -25px 25px -25px; 
+            padding: 33px 20px; 
+            color: #ffffff; 
+            background: linear-gradient(170deg, #1e3a8a 0%, #3b82f6 35%, #e0f2fe 50%, #2dd4bf 70%, #14b8a6 100%); 
+            border-top-left-radius: 12px; 
+            border-top-right-radius: 12px; 
+            box-shadow: 0 4px 12px rgba(20, 184, 166, 0.3);
+            letter-spacing: 0.08em;
+            text-shadow: 2px 2px 4px #1e3a8a;
+        }
+
         h2 { font-size: 1.1rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 5px; margin-top: 25px; color: #1e293b; }
         .section { margin-bottom: 20px; }
         label { font-weight: bold; display: block; margin-bottom: 5px; font-size: 0.9rem; }
         input, select, textarea, button { padding: 8px 12px; font-size: 0.9rem; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; }
         
-        #seatConfigGrid {
-            display: grid;
-            grid-template-columns: repeat(6, 1fr);
-            gap: 6px;
-            max-width: 480px;
+        .grid-config-container {
+            max-width: 560px;
             margin: 10px 0;
             background: #f8fafc;
             border: 2px solid #cbd5e1;
             padding: 10px;
             border-radius: 8px;
         }
+        
+        .blackboard-row {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 4px 0;
+        }
+        .blackboard-banner {
+            background: #065f46;
+            color: #ffffff;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.85rem;
+            width: 40%;
+            padding: 5px 0;
+            letter-spacing: 0.3em;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
         .config-seat {
             background: #fff;
             border: 2px solid #94a3b8;
@@ -46,21 +80,40 @@
         .student-list-container { max-height: 200px; overflow-y: auto; border: 1px solid #cbd5e1; border-radius: 6px; padding: 8px; background: #f8fafc; }
         .student-item { display: flex; align-items: center; justify-content: space-between; padding: 4px 6px; margin-bottom: 4px; background: #fff; border-radius: 4px; border: 1px solid #e2e8f0; font-size: 0.85rem; }
 
-        .rule-list-container { max-height: 150px; overflow-y: auto; border: 1px solid #cbd5e1; border-radius: 6px; padding: 8px; background: #f8fafc; margin-top: 8px; }
+        .rule-list-container { max-height: 180px; overflow-y: auto; border: 1px solid #cbd5e1; border-radius: 6px; padding: 8px; background: #f8fafc; margin-top: 8px; }
         .rule-item { display: flex; align-items: center; justify-content: space-between; padding: 4px 8px; margin-bottom: 4px; background: #fff; border-radius: 4px; border: 1px solid #e2e8f0; font-size: 0.85rem; }
 
         .btn { background: #2563eb; color: white; border: none; cursor: pointer; padding: 10px 16px; font-size: 1rem; font-weight: bold; border-radius: 6px; width: 100%; }
         .btn:hover { background: #1d4ed8; }
+        
+        .btn-execute { padding: 18px 16px; font-size: 1.15rem; }
+
         .btn-secondary { background: #64748b; width: auto; font-size: 0.85rem; padding: 6px 12px; cursor: pointer; color: white; border: none; border-radius: 6px; }
         .btn-secondary:hover { background: #475569; }
         .btn-success { background: #16a34a; width: auto; font-size: 0.85rem; padding: 6px 12px; cursor: pointer; color: white; border: none; border-radius: 6px; }
         .btn-success:hover { background: #15803d; }
+        
+        /* 保存ボタンエリア：縦並びにして右寄せ、隙間をすっきり調整 */
+        .save-action-bar { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: flex-end; 
+            gap: 6px; 
+            margin-bottom: 25px; 
+        }
+        .save-buttons-row {
+            display: flex;
+            gap: 8px;
+        }
+        .btn-save-custom { background: #0d9488; font-size: 0.85rem; padding: 8px 16px; font-weight: bold; color: white; border: none; border-radius: 6px; cursor: pointer; white-space: nowrap; width: auto; flex: initial; }
+        .btn-save-custom:hover { background: #0f766e; }
+        .btn-reset-custom { background: #dc2626; font-size: 0.8rem; padding: 8px 12px; font-weight: bold; color: white; border: none; border-radius: 6px; cursor: pointer; white-space: nowrap; width: auto; flex: initial; }
+        .btn-reset-custom:hover { background: #b91c1c; }
 
         #errorMsg { background: #fee2e2; color: #991b1b; padding: 12px; border-radius: 6px; margin-top: 15px; display: none; font-weight: bold; font-size: 0.95rem; border: 1px solid #f87171; }
 
         .classroom { margin-top: 25px; border-top: 4px solid #334155; padding-top: 15px; }
-        .view-indicator { text-align: center; background: #e2e8f0; padding: 8px; font-weight: bold; margin-bottom: 15px; border-radius: 6px; font-size: 0.95rem; }
-        .grid-container { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
+        .grid-container { display: grid; gap: 10px; }
         
         .seat { 
             background: #fff; 
@@ -76,58 +129,32 @@
             font-weight: bold; 
             font-size: 1.05rem; 
             box-shadow: 0 1px 3px rgba(0,0,0,0.04); 
-            user-select: none; 
+            cursor: grab;
+            user-select: none;
         }
+        .seat:active { cursor: grabbing; }
         .seat.is-boy { background: #eff6ff; border-color: #60a5fa; color: #1e40af; }
         .seat.is-girl { background: #fdf2f8; border-color: #f472b6; color: #9d174d; }
-        .seat.empty { background: #f1f5f9; border: 2px dashed #cbd5e1; color: #94a3b8; cursor: default; box-shadow: none; align-items: center; justify-content: center; text-align: center; }
-        .seat.excluded-seat { background: #e2e8f0 !important; border: 2px solid #94a3b8 !important; color: transparent !important; cursor: default; box-shadow: none; }
-        .seat-sub { font-size: 0.75rem; color: #64748b; margin-top: 4px; font-weight: normal; }
+        .seat.empty { background: #f1f5f9; border: 2px dashed #cbd5e1; color: #94a3b8; cursor: grab; box-shadow: none; align-items: center; justify-content: center; text-align: center; }
+        .seat.excluded-seat { background: #e2e8f0 !important; border: 2px solid #94a3b8 !important; color: transparent !important; cursor: default; box-shadow: none; pointer-events: none; }
+        .seat.drag-over { border: 3px dashed #2563eb !important; background: #eff6ff !important; }
+        .seat-sub { font-size: 0.75rem; color: #64748b; margin-top: 4px; font-weight: normal; pointer-events: none; }
 
-        /* 印刷設定：1ページに収める、日付のみ右上表示、視点切替ボタン非表示 */
+        /* 印刷設定：自動で80%に縮小して1ページに収める */
         @media print {
-            @page {
-                size: A4 landscape;
-                margin: 1cm;
-            }
-            body > .container > *:not(.classroom) {
-                display: none !important;
-            }
+            @page { size: A4 landscape; margin: 1cm; }
             body {
-                background: #fff;
-                padding: 0;
+                zoom: 80%;
             }
-            .container {
-                max-width: 100% !important;
-                padding: 0 !important;
-                box-shadow: none !important;
-                background: #fff !important;
-            }
-            .classroom {
-                margin: 0 !important;
-                border: none !important;
-                padding: 0 !important;
-            }
-            .toolbar, .view-indicator, .seat-sub, .view-toggle-bar {
-                display: none !important;
-            }
-            .grid-container {
-                gap: 8px !important;
-            }
-            .seat {
-                min-height: 100px !important;
-                font-size: 1.15rem !important;
-                padding: 10px !important;
-                border-width: 2px !important;
-            }
-            .print-date-header {
-                display: block !important;
-                text-align: right;
-                font-size: 0.9rem;
-                font-weight: bold;
-                margin-bottom: 6px;
-                color: #000;
-            }
+            body > .container > *:not(.classroom) { display: none !important; }
+            body { background: #fff; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .container { max-width: 100% !important; padding: 0 !important; box-shadow: none !important; background: #fff !important; }
+            .classroom { margin: 0 !important; border: none !important; padding: 0 !important; }
+            .toolbar, .view-indicator, .seat-sub, .view-toggle-bar, .print-ignore-guide { display: none !important; }
+            .grid-container { gap: 8px !important; }
+            .blackboard-banner { background: #000 !important; color: #fff !important; border: 2px solid #000 !important; }
+            .seat { min-height: 100px !important; font-size: 1.15rem !important; padding: 10px !important; border-width: 2px !important; border-color: #000 !important; background: #fff !important; color: #000 !important; cursor: default !important; box-shadow: none !important; }
+            .print-date-header { display: block !important; text-align: right; font-size: 0.9rem; font-weight: bold; margin-bottom: 6px; color: #000; }
         }
         .print-date-header { display: none; }
     </style>
@@ -135,21 +162,34 @@
 <body>
 
 <div class="container">
-    <h1>席替え自動作成アプリ</h1>
+    <h1>☆席替えくん☆</h1>
 
     <div class="section">
-        <h2>1. 教室の席レイアウト（横6列 × 縦4〜6列）</h2>
-        <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 8px; flex-wrap: wrap;">
-            <label for="rowCount" style="margin:0;">縦の列数:</label>
-            <select id="rowCount" onchange="initSeatConfig()">
-                <option value="4">4列 (計24席)</option>
-                <option value="5">5列 (計30席)</option>
-                <option value="6" selected>6列 (計36席)</option>
-            </select>
+        <h2>1. 教室の席レイアウト設定</h2>
+        <div style="display: flex; gap: 15px; align-items: center; margin-bottom: 8px; flex-wrap: wrap;">
+            <div>
+                <label for="colCount" style="margin:0; display:inline-block; margin-right:5px;">横の列数:</label>
+                <select id="colCount" onchange="onLayoutDimensionChange()">
+                    <option value="4">4列</option>
+                    <option value="5">5列</option>
+                    <option value="6" selected>6列</option>
+                    <option value="7">7列</option>
+                </select>
+            </div>
+            <div>
+                <label for="rowCount" style="margin:0; display:inline-block; margin-right:5px;">縦の列数:</label>
+                <select id="rowCount" onchange="onLayoutDimensionChange()">
+                    <option value="4">4列</option>
+                    <option value="5">5列</option>
+                    <option value="6" selected>6列</option>
+                </select>
+            </div>
         </div>
-        <div style="font-size: 0.8rem; color: #64748b; margin-bottom: 6px;">※席をクリックすると「指定なし ➔ 男子席(青) ➔ 女子席(ピンク) ➔ 除外(グレー)」に切替わります。</div>
+        <div style="font-size: 0.8rem; color: #64748b; margin-bottom: 6px;">※席をクリックすると推奨の配置順に切り替わります。</div>
         
-        <div id="seatConfigGrid"></div>
+        <div class="grid-config-container">
+            <div id="seatConfigGrid" style="display: grid; gap: 6px;"></div>
+        </div>
     </div>
 
     <div class="section">
@@ -179,10 +219,6 @@
             <div>
                 <label>登録済み名簿:</label>
                 <div class="student-list-container" id="studentListContainer"></div>
-                <div style="margin-top: 5px; display: flex; gap: 8px; flex-wrap: wrap;">
-                    <button class="btn btn-secondary" type="button" onclick="explicitSaveRoster()" style="font-size:0.80rem;">名簿を保存</button>
-                    <button class="btn btn-secondary" type="button" onclick="resetRoster()" style="background:#dc2626; font-size:0.80rem;">名簿をクリア</button>
-                </div>
             </div>
         </div>
     </div>
@@ -190,7 +226,7 @@
     <div class="section">
         <h2>3. 詳細条件（ペア・距離ルール設定）</h2>
         <div style="margin-bottom: 10px;">
-            <label><input type="checkbox" id="useStrictGender" checked> 事前指定した男女席に従う</label>
+            <label><input type="checkbox" id="useStrictGender" checked onchange="saveConfigSilent()"> 事前指定した男女席に従う</label>
         </div>
         
         <label>ペアの距離ルールを追加:</label>
@@ -212,14 +248,22 @@
         </div>
     </div>
 
-    <button class="btn" type="button" onclick="generateSeats()">席替えを実行する</button>
+    <!-- 保存ボタンと注意書きを1つのグループにまとめ、すっきりと右寄せ配置 -->
+    <div class="save-action-bar">
+        <div class="save-buttons-row">
+            <button class="btn-save-custom" type="button" onclick="explicitSaveAll()">💾 設定を保存する（名簿・レイアウト・条件）</button>
+            <button class="btn-reset-custom" type="button" onclick="resetAllData()">🗑️ すべてクリア</button>
+        </div>
+        <div style="font-size: 0.8rem; color: #64748b;">※お使いのPCに一番新しいデータが保存されます。</div>
+    </div>
+
+    <button class="btn btn-execute" type="button" onclick="generateSeats()" style="margin-top: 10px;">👧 席替えを実行する 👦</button>
 
     <div id="errorMsg"></div>
 
     <div class="classroom">
         <div id="printDateHeader" class="print-date-header"></div>
         
-        <!-- 視点切替機能 -->
         <div class="view-toggle-bar" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; background: #f1f5f9; padding: 10px; border-radius: 8px;">
             <span id="viewModeIndicator" style="font-weight: bold; font-size: 0.95rem; color: #334155;">黒板側が上</span>
             <button class="btn btn-secondary" type="button" onclick="toggleViewMode()" style="font-size: 0.85rem;">視点を反転</button>
@@ -227,8 +271,8 @@
         
         <div id="seatGrid" class="grid-container"></div>
         
-        <div class="toolbar" style="margin-top: 15px; display: flex; gap: 10px;">
-            <button class="btn btn-secondary" type="button" onclick="printSeats()">結果を印刷・PDF</button>
+        <div class="toolbar" style="margin-top: 15px; display: flex; justify-content: flex-end;">
+            <button class="btn btn-secondary" type="button" onclick="printSeats()" style="width: auto; flex: initial;">🖨️ 印刷／PDFで保存</button>
         </div>
     </div>
 </div>
@@ -239,12 +283,84 @@ let studentsMaster = [];
 let rulesMaster = [];
 let currentAssignment = [];
 let isReversedView = false;
+let draggedSeatIndex = null;
+
+function getCols() {
+    const sel = document.getElementById('colCount');
+    return sel ? parseInt(sel.value) || 6 : 6;
+}
+
+function getRows() {
+    const sel = document.getElementById('rowCount');
+    return sel ? parseInt(sel.value) || 6 : 6;
+}
+
+function loadAllData() {
+    try {
+        const savedRoster = localStorage.getItem('seatApp_roster_v5');
+        if (savedRoster) studentsMaster = JSON.parse(savedRoster);
+
+        const savedConfigs = localStorage.getItem('seatApp_configs_v5');
+        if (savedConfigs) {
+            const data = JSON.parse(savedConfigs);
+            if (data.colCount) document.getElementById('colCount').value = data.colCount;
+            if (data.rowCount) document.getElementById('rowCount').value = data.rowCount;
+            if (data.seatConfigs) seatConfigs = data.seatConfigs;
+            if (data.useStrict !== undefined) document.getElementById('useStrictGender').checked = data.useStrict;
+        }
+
+        const savedRules = localStorage.getItem('seatApp_rules_v5');
+        if (savedRules) rulesMaster = JSON.parse(savedRules);
+    } catch(e) {
+        console.error("データ読み込みエラー", e);
+    }
+}
+
+function saveConfigSilent() {
+    try {
+        localStorage.setItem('seatApp_roster_v5', JSON.stringify(studentsMaster));
+        const colCount = getCols();
+        const rowCount = getRows();
+        const useStrict = document.getElementById('useStrictGender').checked;
+        localStorage.setItem('seatApp_configs_v5', JSON.stringify({ colCount, rowCount, seatConfigs, useStrict }));
+        localStorage.setItem('seatApp_rules_v5', JSON.stringify(rulesMaster));
+    } catch(e) {}
+}
+
+function explicitSaveAll() {
+    saveConfigSilent();
+    alert("名簿、席のレイアウト、詳細条件を保存しました！");
+}
+
+function resetAllData() {
+    if(confirm('名簿、席のレイアウト、ルールなどすべてのデータを初期化しますか？')) {
+        localStorage.removeItem('seatApp_roster_v5');
+        localStorage.removeItem('seatApp_configs_v5');
+        localStorage.removeItem('seatApp_rules_v5');
+        studentsMaster = [];
+        seatConfigs = [];
+        rulesMaster = [];
+        document.getElementById('colCount').value = "6";
+        document.getElementById('rowCount').value = "6";
+        document.getElementById('useStrictGender').checked = true;
+        initSeatConfig();
+        renderRoster();
+        renderRules();
+        currentAssignment = new Array(36).fill(null);
+        renderClassroom();
+        alert("初期化しました。");
+    }
+}
+
+function onLayoutDimensionChange() {
+    initSeatConfig();
+    saveConfigSilent();
+}
 
 function initSeatConfig() {
-    const rowsSelect = document.getElementById('rowCount');
-    if (!rowsSelect) return;
-    const rows = parseInt(rowsSelect.value) || 6;
-    const total = 6 * rows;
+    const cols = getCols();
+    const rows = getRows();
+    const total = cols * rows;
     
     if (!Array.isArray(seatConfigs) || seatConfigs.length !== total) {
         seatConfigs = new Array(total).fill(0);
@@ -261,13 +377,23 @@ function initSeatConfig() {
 function renderSeatConfigGrid() {
     const grid = document.getElementById('seatConfigGrid');
     if (!grid) return;
-    const rowsSelect = document.getElementById('rowCount');
-    const rows = rowsSelect ? parseInt(rowsSelect.value) : 6;
+    const cols = getCols();
+    const rows = getRows();
+    
+    grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
     grid.innerHTML = '';
 
-    for (let i = 0; i < (6 * rows); i++) {
-        const r = Math.floor(i / 6) + 1;
-        const c = (i % 6) + 1;
+    const rowDiv = document.createElement('div');
+    rowDiv.className = 'blackboard-row';
+    const banner = document.createElement('div');
+    banner.className = 'blackboard-banner';
+    banner.textContent = '黒板';
+    rowDiv.appendChild(banner);
+    grid.appendChild(rowDiv);
+
+    for (let i = 0; i < (cols * rows); i++) {
+        const r = Math.floor(i / cols) + 1;
+        const c = (i % cols) + 1;
         const div = document.createElement('div');
         div.className = 'config-seat';
         
@@ -290,28 +416,11 @@ function renderSeatConfigGrid() {
             return function() {
                 seatConfigs[idx] = (seatConfigs[idx] + 1) % 4;
                 renderSeatConfigGrid();
+                saveConfigSilent();
             };
         })(i);
         grid.appendChild(div);
     }
-}
-
-try {
-    const saved = localStorage.getItem('savedRoster_v_exact_strict_v3');
-    if (saved) studentsMaster = JSON.parse(saved);
-} catch(e) {
-    studentsMaster = [];
-}
-
-function saveRosterSilent() {
-    try {
-        localStorage.setItem('savedRoster_v_exact_strict_v3', JSON.stringify(studentsMaster));
-    } catch(e) {}
-}
-
-function explicitSaveRoster() {
-    localStorage.setItem('savedRoster_v_exact_strict_v3', JSON.stringify(studentsMaster));
-    alert("名簿を保存しました");
 }
 
 function updateRuleSelects() {
@@ -351,7 +460,7 @@ function renderRules() {
         let typeSymbol = r.type === '離す' ? '≪離す≫' : '≫近づける≪';
         div.innerHTML = `
             <span><b>${r.s1}</b> と <b>${r.s2}</b> を <b>${typeSymbol}</b> (距離: ${r.dist})</span>
-            <button type="button" onclick="rulesMaster.splice(${idx},1); renderRules();" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:0.75rem;">🗑️</button>
+            <button type="button" onclick="rulesMaster.splice(${idx},1); renderRules(); saveConfigSilent();" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:0.75rem;">🗑️</button>
         `;
         container.appendChild(div);
     });
@@ -368,6 +477,7 @@ function addRule() {
 
     rulesMaster.push({ s1, s2, type, dist });
     renderRules();
+    saveConfigSilent();
 }
 
 function renderRoster() {
@@ -383,7 +493,7 @@ function renderRoster() {
         
         item.innerHTML = `
             <label style="display:flex; align-items:center; gap:6px; margin:0; cursor:pointer; font-weight:normal; flex:1;">
-                <input type="checkbox" ${st.active ? 'checked' : ''} onchange="studentsMaster[${idx}].active = this.checked; saveRosterSilent(); updateRuleSelects();">
+                <input type="checkbox" ${st.active ? 'checked' : ''} onchange="studentsMaster[${idx}].active = this.checked; saveConfigSilent(); updateRuleSelects();">
                 <span style="font-weight:bold; ${colorStyle}">${numStr}${st.name} (${genderLabel})</span>
                 ${st.frontPref ? '<span style="font-size:0.7rem; background:#e0e7ff; color:#3730a3; padding:1px 3px; border-radius:3px;">前</span>' : ''}
             </label>
@@ -410,7 +520,7 @@ function renderRoster() {
 function deleteStudent(idx) {
     studentsMaster.splice(idx, 1);
     renderRoster();
-    saveRosterSilent();
+    saveConfigSilent();
 }
 
 function saveStudentForm() {
@@ -445,7 +555,7 @@ function saveStudentForm() {
     nameInput.value = '';
     frontCheckbox.checked = false;
     renderRoster();
-    saveRosterSilent();
+    saveConfigSilent();
 }
 
 function importExcelPaste() {
@@ -500,7 +610,7 @@ function importExcelPaste() {
 
     document.getElementById('excelPasteInput').value = '';
     renderRoster();
-    saveRosterSilent();
+    saveConfigSilent();
     alert(`${addedCount}人登録しました`);
 }
 
@@ -527,17 +637,10 @@ function cancelEdit() {
     document.getElementById('cancelEditBtn').style.display = 'none';
 }
 
-function resetRoster() {
-    if(confirm('名簿をクリアしますか？')) { 
-        studentsMaster.length = 0; 
-        renderRoster(); 
-        saveRosterSilent();
-    }
-}
-
 function getDistance(idx1, idx2) {
-    let r1 = Math.floor(idx1 / 6), c1 = idx1 % 6;
-    let r2 = Math.floor(idx2 / 6), c2 = idx2 % 6;
+    const cols = getCols();
+    let r1 = Math.floor(idx1 / cols), c1 = idx1 % cols;
+    let r2 = Math.floor(idx2 / cols), c2 = idx2 % cols;
     return Math.abs(r1 - r2) + Math.abs(c1 - c2);
 }
 
@@ -564,8 +667,9 @@ function generateSeats() {
     errorDiv.style.display = 'none';
     errorDiv.textContent = '';
     
-    const rows = parseInt(document.getElementById('rowCount').value) || 6;
-    const totalSlots = 6 * rows;
+    const cols = getCols();
+    const rows = getRows();
+    const totalSlots = cols * rows;
     const activeStudents = studentsMaster.filter(s => s.active);
 
     if (activeStudents.length === 0) {
@@ -603,8 +707,8 @@ function generateSeats() {
 
         for (let i = 0; i < totalSlots; i++) {
             if (seatConfigs[i] === 3) continue;
-            let rowIdx = Math.floor(i / 6);
-            let isFrontArea = rowIdx < 3; // 1〜3列目（前方エリア）
+            let rowIdx = Math.floor(i / cols);
+            let isFrontArea = rowIdx < Math.ceil(rows / 2);
             
             if (seatConfigs[i] === 1) {
                 fixedBoyIndices.push(i);
@@ -612,22 +716,17 @@ function generateSeats() {
                 fixedGirlIndices.push(i);
             } else {
                 freeIndices.push(i);
-                if (isFrontArea) frontFreeIndices.push(i); // 1〜3列目の自由席
+                if (isFrontArea) frontFreeIndices.push(i);
             }
         }
 
         let frontStudents = [...activeStudents].filter(s => s.frontPref).sort(() => Math.random() - 0.5);
-        let otherStudents = [...activeStudents].filter(s => !s.frontPref).sort(() => Math.random() - 0.5);
-
         let failed = false;
         let assignedIndices = new Set();
-
-        // 【改良】前希望の生徒は、1〜3列目の範囲（前方エリア）の中からランダムに割り当てる
         let shuffledFrontPool = [...frontFreeIndices].sort(() => Math.random() - 0.5);
         
         for (let st of frontStudents) {
             let placed = false;
-            // 1. 1〜3列目の自由席からランダムに取得
             let availableFrontFree = shuffledFrontPool.filter(idx => !assignedIndices.has(idx));
             if (availableFrontFree.length > 0) {
                 let idx = availableFrontFree.pop();
@@ -635,8 +734,7 @@ function generateSeats() {
                 assignedIndices.add(idx);
                 placed = true;
             } else {
-                // 2. 1〜3列目にある男女固定席（性別が合致するもの）があればそこを利用
-                let availableFrontFixed = (st.gender === 'M' ? fixedBoyIndices : fixedGirlIndices).filter(idx => Math.floor(idx/6) < 3 && !assignedIndices.has(idx));
+                let availableFrontFixed = (st.gender === 'M' ? fixedBoyIndices : fixedGirlIndices).filter(idx => Math.floor(idx/cols) < Math.ceil(rows / 2) && !assignedIndices.has(idx));
                 if (availableFrontFixed.length > 0) {
                     let idx = availableFrontFixed[Math.floor(Math.random() * availableFrontFixed.length)];
                     tempAssign[idx] = st;
@@ -662,7 +760,6 @@ function generateSeats() {
         let girls = unassignedStudents.filter(s => s.gender === 'F');
 
         if (useStrict) {
-            let strictFail = false;
             for (let idx of fixedBoyIndices) {
                 if (assignedIndices.has(idx)) continue;
                 let bIdx = boys.findIndex(b => true);
@@ -739,16 +836,31 @@ function toggleViewMode() {
 function renderClassroom() {
     const grid = document.getElementById('seatGrid');
     if (!grid) return;
-    const rows = parseInt(document.getElementById('rowCount').value) || 6;
-    grid.style.gridTemplateColumns = 'repeat(6, 1fr)';
+    const cols = getCols();
+    const rows = getRows();
+    grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
     grid.innerHTML = '';
 
+    const createBlackboardRow = () => {
+        const rowDiv = document.createElement('div');
+        rowDiv.className = 'blackboard-row';
+        const banner = document.createElement('div');
+        banner.className = 'blackboard-banner';
+        banner.textContent = '黒板';
+        rowDiv.appendChild(banner);
+        return rowDiv;
+    };
+
     let indices = [];
-    for (let i = 0; i < (6 * rows); i++) {
+    for (let i = 0; i < (cols * rows); i++) {
         indices.push(i);
     }
     if (isReversedView) {
         indices.reverse();
+    }
+
+    if (!isReversedView) {
+        grid.appendChild(createBlackboardRow());
     }
 
     for (let index of indices) {
@@ -758,8 +870,12 @@ function renderClassroom() {
         if (seatConfigs[index] === 3) {
             div.className = 'seat excluded-seat';
             div.textContent = '';
+            div.setAttribute('draggable', 'false');
         } else {
             const st = currentAssignment[index];
+            div.setAttribute('draggable', 'true');
+            div.setAttribute('data-seat-index', index);
+
             if (!st) {
                 div.classList.add('empty');
                 div.textContent = '';
@@ -779,24 +895,65 @@ function renderClassroom() {
                     div.appendChild(subDiv);
                 }
             }
+
+            div.addEventListener('dragstart', function(e) {
+                draggedSeatIndex = index;
+                e.dataTransfer.effectAllowed = 'move';
+            });
+
+            div.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+                div.classList.add('drag-over');
+            });
+
+            div.addEventListener('dragleave', function() {
+                div.classList.remove('drag-over');
+            });
+
+            div.addEventListener('drop', function(e) {
+                e.preventDefault();
+                div.classList.remove('drag-over');
+                
+                if (draggedSeatIndex !== null && draggedSeatIndex !== index) {
+                    let temp = currentAssignment[draggedSeatIndex];
+                    currentAssignment[draggedSeatIndex] = currentAssignment[index];
+                    currentAssignment[index] = temp;
+
+                    renderClassroom();
+                }
+                draggedSeatIndex = null;
+            });
+
+            div.addEventListener('dragend', function() {
+                draggedSeatIndex = null;
+            });
         }
         grid.appendChild(div);
     }
+
+    if (isReversedView) {
+        grid.appendChild(createBlackboardRow());
+    }
 }
+
+window.onload = function() {
+    loadAllData();
+    initSeatConfig();
+    renderRoster();
+    renderRules();
+    currentAssignment = new Array(seatConfigs.length).fill(null);
+    renderClassroom();
+};
 
 function printSeats() {
     const header = document.getElementById('printDateHeader');
     if (header) {
-        const now = new Date();
-        header.textContent = `${now.getFullYear()}年${now.getMonth() + 1}月${now.getDate()}日`;
+        let d = new Date();
+        header.textContent = `${d.getFullYear()}.${d.getMonth() + 1}.${d.getDate()}`;
     }
     window.print();
 }
-
-window.addEventListener('DOMContentLoaded', () => {
-    initSeatConfig();
-    renderRoster();
-});
 </script>
 
 </body>
